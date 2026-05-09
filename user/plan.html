@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>调养方案 · 安眠智道</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #F0EDF8; }
+
+.plan-header-card {
+  background: linear-gradient(135deg, #0A2A3A 0%, #1A1060 50%, #2A1060 100%);
+  border-radius: 20px; padding: 32px 36px; margin-bottom: 28px;
+  position: relative; overflow: hidden;
+}
+
+.plan-header-card::after {
+  content: '🌿'; position: absolute; right: 36px; top: 50%;
+  transform: translateY(-50%); font-size: 80px; opacity: 0.1;
+}
+
+.plan-syndrome-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(201,162,39,0.15); border: 1px solid rgba(201,162,39,0.3);
+  color: var(--secondary-light); padding: 6px 16px;
+  border-radius: 20px; font-size: 13px; font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.plan-title { font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 8px; }
+.plan-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); }
+
+/* 板块标签 */
+.plan-tabs {
+  display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;
+}
+
+.plan-tab {
+  padding: 10px 20px; border-radius: 12px;
+  background: #fff; border: 1.5px solid rgba(107,79,160,0.15);
+  font-size: 14px; font-weight: 600; color: var(--text-secondary);
+  cursor: pointer; transition: var(--transition); font-family: inherit;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.plan-tab:hover { border-color: var(--primary); color: var(--primary); }
+.plan-tab.active { background: var(--purple-gradient); border-color: transparent; color: #fff; }
+
+/* 板块内容卡片 */
+.plan-panel { display: none; }
+.plan-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+.plan-card {
+  background: #fff; border-radius: 16px;
+  border: 1px solid rgba(107,79,160,0.1);
+  overflow: hidden; margin-bottom: 20px;
+}
+
+.plan-card-header {
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 14px;
+  border-bottom: 1px solid rgba(107,79,160,0.06);
+  background: rgba(107,79,160,0.02);
+}
+
+.plan-card-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+
+.plan-card-header h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.plan-card-header p { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+
+.plan-card-body { padding: 24px; }
+
+/* 食物网格 */
+.food-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;
+  margin-bottom: 20px;
+}
+
+.food-item {
+  text-align: center; padding: 16px 8px;
+  background: rgba(42,157,143,0.04);
+  border: 1px solid rgba(42,157,143,0.12);
+  border-radius: 12px;
+}
+
+.food-emoji { font-size: 28px; margin-bottom: 8px; }
+.food-name { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.food-effect { font-size: 11px; color: var(--text-light); }
+
+.avoid-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.avoid-tag {
+  padding: 6px 14px; background: rgba(231,111,81,0.06);
+  border: 1px solid rgba(231,111,81,0.2); border-radius: 20px;
+  font-size: 13px; color: var(--danger); font-weight: 600;
+}
+
+.avoid-tag::before { content: '✗ '; }
+
+/* 穴位卡片 */
+.acupoint-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+.acupoint-card {
+  background: rgba(107,79,160,0.03);
+  border: 1px solid rgba(107,79,160,0.1);
+  border-radius: 12px; padding: 20px;
+}
+
+.acupoint-name { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+.acupoint-location { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.6; }
+.acupoint-method {
+  font-size: 12px; padding: 8px 12px;
+  background: rgba(107,79,160,0.06); border-radius: 8px;
+  color: var(--text-secondary); line-height: 1.6;
+}
+
+/* 情志起居列表 */
+.lifestyle-list { display: flex; flex-direction: column; gap: 12px; }
+
+.lifestyle-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 18px;
+  background: rgba(107,79,160,0.03);
+  border: 1px solid rgba(107,79,160,0.08);
+  border-radius: 10px;
+}
+
+.lifestyle-icon { font-size: 22px; flex-shrink: 0; }
+.lifestyle-text { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+.lifestyle-text strong { color: var(--text-primary); display: block; margin-bottom: 3px; font-size: 14px; }
+
+/* 方药展示 */
+.formula-card {
+  background: linear-gradient(135deg, rgba(107,79,160,0.05), rgba(201,162,39,0.05));
+  border: 1px solid rgba(107,79,160,0.12);
+  border-radius: 14px; padding: 24px;
+}
+
+.formula-name { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+.formula-type { font-size: 13px; color: var(--text-light); margin-bottom: 20px; }
+
+.herb-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+
+.herb-tag {
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 13px; font-weight: 600;
+  background: rgba(107,79,160,0.08);
+  border: 1px solid rgba(107,79,160,0.15);
+  color: var(--primary);
+}
+
+.herb-tag.main { background: rgba(201,162,39,0.1); border-color: rgba(201,162,39,0.25); color: #7A5500; }
+
+.formula-disclaimer {
+  background: rgba(231,111,81,0.05); border: 1px solid rgba(231,111,81,0.15);
+  border-radius: 8px; padding: 12px 16px;
+  font-size: 12px; color: var(--danger); line-height: 1.7;
+}
+
+/* 操作区 */
+.plan-actions {
+  display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .food-grid { grid-template-columns: repeat(3, 1fr); }
+  .acupoint-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .food-grid { grid-template-columns: repeat(3, 1fr); }
+  .plan-tabs { gap: 6px; }
+  .plan-tab { padding: 8px 14px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="dashboard.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+        <div class="brand-icon">☯</div>
+        <div class="brand-text">
+          <span class="brand-name">安眠智道</span>
+          <span class="brand-sub">调养方案</span>
+        </div>
+      </a>
+    </div>
+    <div class="nav-actions">
+      <a href="dashboard.html" class="btn-login">← 返回主页</a>
+      <button class="btn-register" onclick="logoutUser()">退出</button>
+    </div>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">用</div>
+      <div class="sidebar-username" id="sidebarName">加载中...</div>
+      <span class="sidebar-role">普通用户</span>
+    </div>
+    <p class="sidebar-section-title">功能菜单</p>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏠 我的主页</a>
+      <a href="assessment.html">🔍 开始辨证</a>
+      <a href="records.html">📋 辨证记录</a>
+      <a href="plan.html" class="active">🌿 调养方案</a>
+      <a href="trend.html">📊 症状趋势</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <!-- 方案标题 -->
+    <div class="plan-header-card">
+      <div class="plan-syndrome-badge" id="syndromeTitle">💛 心脾两虚证 · 专属调养方案</div>
+      <h2 class="plan-title">个性化五大板块调养方案</h2>
+      <p class="plan-subtitle">依据您的辨证结果，AI自动匹配的专属调养计划 · 内容来源权威教材与专家共识</p>
+    </div>
+
+    <!-- 板块切换 -->
+    <div class="plan-tabs">
+      <button class="plan-tab active" onclick="switchPlan(0, this)">💊 基础参考方药</button>
+      <button class="plan-tab" onclick="switchPlan(1, this)">🥗 饮食调理</button>
+      <button class="plan-tab" onclick="switchPlan(2, this)">👐 穴位按摩</button>
+      <button class="plan-tab" onclick="switchPlan(3, this)">😌 情志调节</button>
+      <button class="plan-tab" onclick="switchPlan(4, this)">🌙 起居调摄</button>
+    </div>
+
+    <!-- 基础方药 -->
+    <div class="plan-panel active" id="panel0">
+      <div class="plan-card">
+        <div class="plan-card-header">
+          <div class="plan-card-icon" style="background:rgba(107,79,160,0.1)">💊</div>
+          <div>
+            <h3>基础参考方药</h3>
+            <p>仅为教材经典基础方，不可自行抓药服用</p>
+          </div>
+        </div>
+        <div class="plan-card-body">
+          <div class="formula-card" id="formulaContent">
+            <!-- 动态生成 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 饮食调理 -->
+    <div class="plan-panel" id="panel1">
+      <div class="plan-card">
+        <div class="plan-card-header">
+          <div class="plan-card-icon" style="background:rgba(42,157,143,0.1)">🥗</div>
+          <div>
+            <h3>饮食调理方案</h3>
+            <p>根据您的证型，推荐适宜的食物与饮食宜忌</p>
+          </div>
+        </div>
+        <div class="plan-card-body" id="dietContent">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 穴位按摩 -->
+    <div class="plan-panel" id="panel2">
+      <div class="plan-card">
+        <div class="plan-card-header">
+          <div class="plan-card-icon" style="background:rgba(201,162,39,0.1)">👐</div>
+          <div>
+            <h3>穴位按摩方案</h3>
+            <p>每日睡前按揉，配合呼吸调养神志</p>
+          </div>
+        </div>
+        <div class="plan-card-body" id="acupointContent">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 情志调节 -->
+    <div class="plan-panel" id="panel3">
+      <div class="plan-card">
+        <div class="plan-card-header">
+          <div class="plan-card-icon" style="background:rgba(231,111,81,0.1)">😌</div>
+          <div>
+            <h3>情志调节方案</h3>
+            <p>中医重视情志与睡眠的关系，针对性调节</p>
+          </div>
+        </div>
+        <div class="plan-card-body" id="emotionContent">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 起居调摄 -->
+    <div class="plan-panel" id="panel4">
+      <div class="plan-card">
+        <div class="plan-card-header">
+          <div class="plan-card-icon" style="background:rgba(52,130,246,0.1)">🌙</div>
+          <div>
+            <h3>起居调摄方案</h3>
+            <p>规律作息是失眠调养的核心基础</p>
+          </div>
+        </div>
+        <div class="plan-card-body" id="lifestyleContent">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作区 -->
+    <div class="plan-actions">
+      <button class="btn-primary" onclick="printPlan()">🖨️ 打印方案</button>
+      <a href="assessment.html" class="btn-outline">重新辨证</a>
+      <a href="records.html" class="btn-outline">查看记录</a>
+    </div>
+
+    <!-- 免责声明 -->
+    <div class="disclaimer-box" style="margin-top:20px">
+      <span class="disclaimer-icon">⚕️</span>
+      <p>以上调养方案为居家调养参考，基础参考方药为教材经典方，<strong>不可自行配药、煎药、服用</strong>。如需中药治疗请咨询专业中医师。穴位按摩如有不适请立即停止。</p>
+    </div>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+// 各证型方案数据库
+const planData = {
+  '心脾两虚': {
+    formula: {
+      name: '归脾汤', type: '补益剂 · 补益气血方',
+      mainHerbs: ['白术', '黄芪', '龙眼肉', '酸枣仁', '人参'],
+      otherHerbs: ['木香', '当归', '远志', '炙甘草', '茯神', '生姜', '大枣'],
+      function: '益气补血，健脾养心，安神定志',
+      indications: '思虑过度，劳伤心脾，气血两虚，心神失养所致的失眠、心悸、健忘等'
+    },
+    diet: {
+      foods: [
+        { emoji: '🌾', name: '小米', effect: '健脾养胃' },
+        { emoji: '🍎', name: '红枣', effect: '补血安神' },
+        { emoji: '🍇', name: '桂圆', effect: '益心脾' },
+        { emoji: '🌰', name: '山药', effect: '健脾补气' },
+        { emoji: '🪷', name: '莲子', effect: '养心安神' },
+        { emoji: '🌿', name: '薏米', effect: '健脾利湿' },
+        { emoji: '🥩', name: '猪心', effect: '补心安神' },
+        { emoji: '🌸', name: '百合', effect: '润肺安神' },
+        { emoji: '🫐', name: '桑葚', effect: '滋阴补血' },
+        { emoji: '🥚', name: '鸡蛋', effect: '养血益气' },
+      ],
+      avoid: ['生冷食物', '油腻食物', '辛辣刺激', '咖啡浓茶', '烟酒', '暴饮暴食'],
+      tips: '建议晚餐以清淡易消化为主，7分饱即可，睡前2小时避免进食。可睡前喝一杯热牛奶或小米粥，助眠效果良好。'
+    },
+    acupoints: [
+      { name: '神门穴', location: '腕横纹尺侧端，尺侧腕屈肌腱的桡侧凹陷中', method: '拇指指腹按揉，顺逆时针各1分钟，力度以酸胀为宜，每日睡前' },
+      { name: '内关穴', location: '腕横纹上2寸，掌长肌腱与桡侧腕屈肌腱之间', method: '拇指按压，每次3分钟，两手各做一次，有助于宁心安神' },
+      { name: '三阴交', location: '小腿内侧，足内踝上3寸，胫骨内侧缘后方', method: '拇指点按，每次3-5分钟，健脾益血、养心安神' },
+      { name: '百会穴', location: '头顶正中，两耳连线与正中线交点处', method: '中指按揉，每次2分钟，安神醒脑、镇静助眠' },
+    ],
+    emotion: [
+      { icon: '🧘', title: '减少思虑', text: '心脾两虚多由过度忧思所致，应学会"放下"，避免睡前反复思考工作问题或人际矛盾。睡前进行5分钟深呼吸练习，意念集中在呼吸上。' },
+      { icon: '🎵', title: '音乐疗法', text: '听轻柔的古典音乐或大自然白噪音，如溪流声、雨声，持续20-30分钟，有助于平静心神，改善入睡困难。' },
+      { icon: '✍️', title: '情绪日记', text: '睡前将当天的烦恼与感恩之事各写3条，有助于清空思维、建立积极情绪，避免反刍性思考影响睡眠。' },
+      { icon: '🌳', title: '适度运动', text: '每日下午3-5点进行30分钟有氧运动，如散步、八段锦、太极拳，疏通气血，健运脾胃，有助改善睡眠质量。' },
+    ],
+    lifestyle: [
+      { icon: '⏰', title: '规律作息', text: '建议每日22:30前上床，早晨6:30-7:00起床，建立稳定的睡眠节律，即使周末也尽量保持一致。' },
+      { icon: '📵', title: '睡前1小时', text: '停止使用手机、平板、电脑等电子设备，蓝光会抑制褪黑素分泌。可做轻柔的拉伸或穴位按摩代替。' },
+      { icon: '🛁', title: '热水泡脚', text: '睡前用40°C温水泡脚15-20分钟，可加入艾叶、夜交藤，有助于引火下行、安神助眠。' },
+      { icon: '🌡️', title: '卧室环境', text: '保持卧室温度18-22°C，光线昏暗，避免噪音。使用遮光窗帘，营造有利于睡眠的环境。' },
+      { icon: '🚫', title: '禁忌事项', text: '睡前禁饮咖啡、浓茶、含酒精饮品，避免剧烈运动，不在床上进行非睡眠活动（如工作、刷手机）。' },
+    ]
+  },
+  '肝火扰心': {
+    formula: {
+      name: '龙胆泻肝汤', type: '清热剂 · 清脏腑热方',
+      mainHerbs: ['龙胆草', '黄芩', '栀子', '柴胡', '生地黄'],
+      otherHerbs: ['泽泻', '木通', '车前子', '当归', '甘草'],
+      function: '清泻肝火，清利湿热，安神定志',
+      indications: '肝火上炎，扰动心神所致的急躁易怒、不寐多梦、头晕头胀、口苦便秘等'
+    },
+    diet: {
+      foods: [
+        { emoji: '🥦', name: '芹菜', effect: '清肝降压' },
+        { emoji: '🥒', name: '苦瓜', effect: '清热泻火' },
+        { emoji: '🌼', name: '菊花', effect: '清肝明目' },
+        { emoji: '🫛', name: '绿豆', effect: '清热解毒' },
+        { emoji: '🍋', name: '柠檬', effect: '疏肝理气' },
+        { emoji: '🌿', name: '薄荷', effect: '清肝疏郁' },
+        { emoji: '🫐', name: '蓝莓', effect: '抗氧化' },
+        { emoji: '🥬', name: '菠菜', effect: '养血润燥' },
+        { emoji: '🍐', name: '梨', effect: '清热润肺' },
+        { emoji: '🌊', name: '海带', effect: '清热化痰' },
+      ],
+      avoid: ['辛辣食物', '羊肉', '韭菜', '桂圆荔枝', '烟酒', '浓茶咖啡', '温热补品'],
+      tips: '肝火扰心证应以清淡为主，多食蔬菜水果，适量饮用菊花茶、决明子茶以清肝明目，严禁辛辣刺激食物，禁烟酒。'
+    },
+    acupoints: [
+      { name: '太冲穴', location: '足背第1、2趾骨间隙的后方凹陷中', method: '拇指按压，稍用力，每次3-5分钟，疏肝解郁、清肝泻火' },
+      { name: '行间穴', location: '足背，第1、2趾间，趾蹼缘的后方赤白肉际处', method: '按压刺激，每次2-3分钟，清肝降火效果显著' },
+      { name: '风池穴', location: '后颈部，枕骨下，斜方肌与胸锁乳突肌之间的凹陷', method: '双手拇指同时按压，每次2分钟，平肝熄风、安神助眠' },
+      { name: '合谷穴', location: '手背第1、2掌骨间，第2掌骨桡侧中点', method: '拇指按压，每次3分钟，清热解毒、镇静安神' },
+    ],
+    emotion: [
+      { icon: '😤', title: '调节愤怒情绪', text: '肝火扰心多因长期郁怒所致，遇事时练习"停顿呼吸法"：感到愤怒时，先暂停，缓慢深吸气4秒，屏息4秒，再呼气6秒，重复3-5次。' },
+      { icon: '🌅', title: '户外疏肝', text: '每日清晨进行30分钟户外活动，如快走、慢跑，在绿色植物环境中运动有助于疏泄肝气，改善情绪。' },
+      { icon: '🎨', title: '艺术疏泄', text: '通过绘画、音乐、书法等艺术形式发泄负面情绪，是中医"以情胜情"疗法的现代应用，避免情绪积压。' },
+      { icon: '🤝', title: '倾诉沟通', text: '主动与信任的朋友或家人倾诉，不要独自承受压力。情绪积压是肝火的重要来源，"郁怒化火，肝火上炎"。' },
+    ],
+    lifestyle: [
+      { icon: '⏰', title: '早睡早起', text: '23:00前就寝是肝火扰心型失眠的关键，子时（23:00-1:00）是肝胆经运行时间，熬夜会加重肝火，必须规律早睡。' },
+      { icon: '🚿', title: '冷水洗脸', text: '早晨起床后用冷水洗脸，有助于收敛阳气、清醒头脑；睡前用温水洗脚，引火归元，帮助入睡。' },
+      { icon: '🏃', title: '适度运动', text: '选择中等强度运动如游泳、骑行，避免剧烈运动以防化热加重肝火，运动时间以下午4-6点为宜。' },
+      { icon: '📺', title: '远离刺激', text: '睡前避免观看激烈竞技类节目、惊悚影片，不参与激烈辩论，保持情绪平稳，营造安静的睡眠环境。' },
+      { icon: '🍵', title: '睡前饮品', text: '可饮用百合莲子汤或酸枣仁茶，有清心安神的效果，严禁饮酒，酒精虽短暂助眠但会干扰睡眠结构。' },
+    ]
+  },
+  '心肾不交': {
+    formula: {
+      name: '六味地黄丸合交泰丸', type: '滋阴清热·引火归原方',
+      mainHerbs: ['熟地黄', '山茱萸', '山药', '黄连', '肉桂'],
+      otherHerbs: ['泽泻', '茯苓', '牡丹皮', '酸枣仁', '知母'],
+      function: '滋阴降火，交通心肾，安神助眠',
+      indications: '肾阴不足，心火偏亢，水火失济所致的心烦不寐、腰膝酸软、五心烦热、盗汗等'
+    },
+    diet: {
+      foods: [
+        { emoji: '🖤', name: '黑芝麻', effect: '滋肾阴' },
+        { emoji: '⚫', name: '黑米', effect: '补肾填精' },
+        { emoji: '🫐', name: '桑葚', effect: '滋阴补肾' },
+        { emoji: '🌊', name: '海参', effect: '补肾益精' },
+        { emoji: '🪷', name: '莲子', effect: '交通心肾' },
+        { emoji: '🌸', name: '百合', effect: '润肺宁心' },
+        { emoji: '🐚', name: '牡蛎', effect: '滋阴潜阳' },
+        { emoji: '🫘', name: '黑豆', effect: '补肾活血' },
+        { emoji: '🌿', name: '枸杞', effect: '滋补肝肾' },
+        { emoji: '🥜', name: '核桃', effect: '补肾填髓' },
+      ],
+      avoid: ['辛辣温燥', '羊肉', '桂圆', '花椒', '酒精', '碳酸饮料', '过咸食物'],
+      tips: '心肾不交证以滋阴为主，多食黑色食物以补肾，多食清心食物，避免一切温热燥性食物，以防加重阴虚火旺。'
+    },
+    acupoints: [
+      { name: '涌泉穴', location: '足底前1/3处，足趾跖屈时呈凹陷处', method: '每晚睡前按揉50-100次，或搓热足底，引心火下行，交通心肾' },
+      { name: '太溪穴', location: '足内踝后方，内踝尖与跟腱之间的凹陷', method: '拇指按压，每次5分钟，滋肾阴、降虚火，对腰膝酸软亦有帮助' },
+      { name: '劳宫穴', location: '手掌中央，握拳时中指尖所指处', method: '与涌泉穴配合按摩，清心火、安心神，每次3分钟' },
+      { name: '照海穴', location: '足内踝下方凹陷中', method: '指压按摩，每次3-5分钟，滋阴降火，改善失眠多梦' },
+    ],
+    emotion: [
+      { icon: '🧘', title: '静心冥想', text: '每日练习10-20分钟正念冥想，专注于呼吸或身体感觉，减少心神燥动，有助于降低心火、改善心肾不交。' },
+      { icon: '📚', title: '减少耗神', text: '避免长时间过度用脑，工作学习50分钟休息10分钟。减少不必要的思虑和焦虑，肾虚者神经敏感，需主动保护神气。' },
+      { icon: '🎶', title: '听宫调音乐', text: '听轻柔的古琴音乐，尤其是宫调、羽调（如《梅花三弄》），有助于滋阴宁心，调和心肾。' },
+      { icon: '🌙', title: '避免熬夜', text: '子时前（23:00前）入睡至关重要，夜晚属阴，熬夜直接耗伤阴液，加重阴虚火旺，是心肾不交的重要诱因。' },
+    ],
+    lifestyle: [
+      { icon: '🛁', title: '药浴泡脚', text: '每晚用艾叶+夜交藤（各20g）煎水泡脚20分钟，水温40°C左右，有助于引火归元、安神助眠，坚持4周见效。' },
+      { icon: '🌡️', title: '阴凉睡眠环境', text: '保持卧室凉爽（18-20°C），使用棉麻透气寝具，阴虚体质怕热，凉爽环境有助于降低核心体温，促进入睡。' },
+      { icon: '🏊', title: '游泳或太极', text: '游泳是心肾不交型失眠的首选运动，水属阴，助于滋阴降火；或练太极拳、八段锦，动作缓和，利于调和阴阳。' },
+      { icon: '🚫', title: '严禁三戒', text: '严禁熬夜（直接耗阴）、严禁烟酒（加重火旺）、严禁房劳过度（伤肾精），这三点是心肾不交恢复的前提条件。' },
+    ]
+  },
+  '心胆气虚': {
+    formula: {
+      name: '安神定志丸合酸枣仁汤', type: '补益安神方',
+      mainHerbs: ['酸枣仁', '人参', '远志', '茯苓', '石菖蒲'],
+      otherHerbs: ['龙骨', '琥珀', '川芎', '知母', '甘草'],
+      function: '益气镇惊，安神定志，养血宁心',
+      indications: '心胆气虚，神志不宁所致的虚烦不寐、多梦易醒、心悸胆怯、触事易惊等'
+    },
+    diet: {
+      foods: [
+        { emoji: '🌾', name: '小米', effect: '安神助眠' },
+        { emoji: '🍎', name: '红枣', effect: '养心益气' },
+        { emoji: '🪷', name: '莲子', effect: '宁心安神' },
+        { emoji: '🌸', name: '百合', effect: '清心润神' },
+        { emoji: '🫘', name: '红豆', effect: '补心养血' },
+        { emoji: '🌰', name: '核桃', effect: '补脑安神' },
+        { emoji: '🍗', name: '鸡肉', effect: '益气温中' },
+        { emoji: '🥛', name: '牛奶', effect: '安神助眠' },
+        { emoji: '🐟', name: '鱼类', effect: '益气健脑' },
+        { emoji: '🌿', name: '菠菜', effect: '养血补铁' },
+      ],
+      avoid: ['咖啡浓茶', '酒精', '辛辣刺激', '生冷食物', '高糖饮食'],
+      tips: '心胆气虚者饮食宜温和，以益气养心为主，避免一切兴奋性食物和饮料，睡前可饮用热牛奶或酸枣仁粥助眠。'
+    },
+    acupoints: [
+      { name: '胆俞穴', location: '第10胸椎棘突下，旁开1.5寸', method: '双手拇指同时按压，每次3分钟，益气壮胆、安神定志' },
+      { name: '心俞穴', location: '第5胸椎棘突下，旁开1.5寸', method: '配合胆俞穴同时按压，每次2-3分钟，宁心安神' },
+      { name: '神门穴', location: '腕横纹尺侧端，尺侧腕屈肌腱桡侧凹陷', method: '每次按揉5分钟，安神定志，对心悸胆怯效果明显' },
+      { name: '足三里', location: '犊鼻穴下3寸，胫骨前嵴外一横指处', method: '按揉5分钟，补益中气，增强体质，改善气虚状态' },
+    ],
+    emotion: [
+      { icon: '💪', title: '逐步脱敏训练', text: '心胆气虚者容易受惊，可以通过逐步接触轻微惊吓源的方式进行脱敏训练，在安全环境中逐渐增强心理承受能力。' },
+      { icon: '🧘', title: '壮胆冥想', text: '每日进行10分钟自我鼓励冥想：想象自己变得勇敢、强大，逐步克服胆小恐惧的情绪，建立内心安全感。' },
+      { icon: '🤝', title: '社交支持', text: '主动参与有温度的社交活动，家人朋友的陪伴有助于减少孤独恐惧感，增强安全感，是心胆气虚调养的重要方法。' },
+      { icon: '📖', title: '睡前仪式感', text: '建立固定的睡前仪式（如洗澡、听音乐、泡脚）告诉大脑"进入安全睡眠时间"，减少入睡前的焦虑和恐惧。' },
+    ],
+    lifestyle: [
+      { icon: '🐕', title: '有伴侣环境', text: '心胆气虚者适合有人陪伴的睡眠环境，独处时恐惧感加重，与家人同住有助于减轻心理压力，改善睡眠。' },
+      { icon: '🌅', title: '早起晒太阳', text: '每日早晨7-9点进行20分钟阳光沐浴，阳光能提升阳气、壮胆气，改善心胆气虚的体质特征，长期坚持有效。' },
+      { icon: '🎯', title: '培养自信', text: '每天记录3件自己做成的小事，积累成就感，逐步建立自信心，是改善心胆气虚证的长期调养方向。' },
+      { icon: '🚶', title: '规律运动', text: '选择太极拳、八段锦、散步等柔和运动，每次30分钟，每周5次，补益中气，增强体质，改善胆怯乏力。' },
+    ]
+  },
+  '痰热扰心': {
+    formula: {
+      name: '温胆汤', type: '祛痰清热·和中安神方',
+      mainHerbs: ['半夏', '陈皮', '茯苓', '枳实', '竹茹'],
+      otherHerbs: ['黄连', '甘草', '生姜', '大枣', '珍珠母'],
+      function: '清化痰热，和中安神，理气化浊',
+      indications: '痰热内蕴，扰乱心神所致的不寐心烦、头重目眩、胸脘痞闷、口苦恶心等'
+    },
+    diet: {
+      foods: [
+        { emoji: '🥒', name: '冬瓜', effect: '清热化痰' },
+        { emoji: '🎋', name: '竹笋', effect: '化痰清热' },
+        { emoji: '🌿', name: '荸荠', effect: '化痰散结' },
+        { emoji: '🥬', name: '白萝卜', effect: '化痰降气' },
+        { emoji: '🍋', name: '陈皮', effect: '理气化痰' },
+        { emoji: '🌸', name: '薏米', effect: '清热除湿' },
+        { emoji: '🫛', name: '绿豆', effect: '清热解毒' },
+        { emoji: '🥦', name: '西兰花', effect: '清热利湿' },
+        { emoji: '🎃', name: '南瓜', effect: '健脾化痰' },
+        { emoji: '🍐', name: '梨', effect: '清热化痰' },
+      ],
+      avoid: ['肥甘厚味', '甜食', '奶制品', '油炸食物', '酒精', '辛辣', '暴饮暴食'],
+      tips: '痰热扰心证饮食原则以清淡化痰为主，严禁肥甘厚腻，三餐规律，每餐七分饱，避免增加脾胃负担，产生更多痰湿。'
+    },
+    acupoints: [
+      { name: '丰隆穴', location: '小腿外侧，外踝尖上8寸，条口穴外1寸', method: '按压力度稍大，每次5分钟，是化痰要穴，清化痰热效果显著' },
+      { name: '内关穴', location: '腕横纹上2寸，两筋之间', method: '每次按揉3分钟，宽胸理气，和中止呕，改善胸脘痞闷' },
+      { name: '神门穴', location: '腕横纹尺侧端凹陷处', method: '每次3分钟，安神定志，改善烦躁不寐' },
+      { name: '头维穴', location: '头侧部，额角发际上0.5寸', method: '轻柔按揉，每次2分钟，清利头目，改善头重目眩' },
+    ],
+    emotion: [
+      { icon: '🍽️', title: '饮食清化情绪', text: '痰热扰心多与过食肥甘有关，调整饮食是根本。同时保持情绪平稳，避免饮食无节律（暴饮暴食、情绪性进食）。' },
+      { icon: '🌬️', title: '腹式呼吸', text: '每日练习腹式呼吸10分钟：吸气时腹部鼓起，呼气时腹部收缩，有助于疏导气机，改善痰湿阻滞的症状。' },
+      { icon: '🚴', title: '积极运动', text: '痰热体质适合较多运动以化痰湿，每日40分钟有氧运动（快走、慢跑、游泳），出汗有助于排出湿热，改善痰热体质。' },
+    ],
+    lifestyle: [
+      { icon: '🚰', title: '控制饮水方式', text: '少量多次饮水，不要大量快速喝水（易生痰湿）。可适量饮用绿茶、陈皮茶等有助化痰的茶饮。' },
+      { icon: '🌱', title: '环境干燥通风', text: '痰湿体质对潮湿环境敏感，保持居室干燥通风，避免在潮湿环境中长时间待着，梅雨季节尤其注意。' },
+      { icon: '🕙', title: '早睡作息', text: '痰热扰心的患者必须在22:30前入睡，保证胆经运行（23:00-1:00）在睡眠中进行，有助于排出胆中痰热。' },
+      { icon: '⚖️', title: '控制体重', text: '痰热体质与肥胖密切相关，维持健康体重是改善痰热体质的长期目标，通过合理饮食与规律运动实现。' },
+    ]
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!checkAuth()) return;
+  const user = getCurrentUser();
+  if (user) {
+    document.getElementById('sidebarAvatar').textContent = user.name.charAt(0);
+    document.getElementById('sidebarName').textContent = user.name;
+  }
+
+  const record = JSON.parse(localStorage.getItem('latestRecord'));
+  let syndrome = '心脾两虚';
+  if (record?.result?.syndrome1) syndrome = record.result.syndrome1;
+
+  const info = syndromeInfo2[syndrome] || {};
+  document.getElementById('syndromeTitle').textContent = `${info.icon || '🌙'} ${syndrome}证 · 专属调养方案`;
+
+  renderPlan(syndrome);
+});
+
+const syndromeInfo2 = {
+  '肝火扰心': { icon: '🔥' }, '痰热扰心': { icon: '🌫️' },
+  '心脾两虚': { icon: '💛' }, '心肾不交': { icon: '🌊' },
+  '心胆气虚': { icon: '🌙' }
+};
+
+let currentSyndrome = '心脾两虚';
+
+function renderPlan(syndrome) {
+  currentSyndrome = syndrome;
+  const data = planData[syndrome] || planData['心脾两虚'];
+
+  // 方药
+  const f = data.formula;
+  document.getElementById('formulaContent').innerHTML = `
+    <div class="formula-name">${f.name}</div>
+    <div class="formula-type">${f.type}</div>
+    <h4 style="font-size:13px;font-weight:700;color:var(--text-light);margin-bottom:10px">主要组成药物</h4>
+    <div class="herb-grid">
+      ${f.mainHerbs.map(h => `<span class="herb-tag main">${h}</span>`).join('')}
+      ${f.otherHerbs.map(h => `<span class="herb-tag">${h}</span>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:rgba(107,79,160,0.04);padding:12px;border-radius:8px">
+        <p style="font-size:12px;color:var(--text-light);margin-bottom:4px">功效</p>
+        <p style="font-size:14px;font-weight:600;color:var(--text-primary)">${f.function}</p>
+      </div>
+      <div style="background:rgba(107,79,160,0.04);padding:12px;border-radius:8px">
+        <p style="font-size:12px;color:var(--text-light);margin-bottom:4px">主治</p>
+        <p style="font-size:13px;color:var(--text-secondary)">${f.indications}</p>
+      </div>
+    </div>
+    <div class="formula-disclaimer">
+      ⚠️ <strong>重要提示：</strong>以上方药为教材经典基础方，仅供学习参考。<strong>严禁自行采购中药、私自配药煎药服用</strong>，中药剂量、加减变化需由专业中医师根据患者具体情况辨证施治，请在专业中医师指导下使用。
+    </div>`;
+
+  // 饮食
+  const d = data.diet;
+  document.getElementById('dietContent').innerHTML = `
+    <h4 style="font-size:14px;font-weight:700;color:var(--text-secondary);margin-bottom:16px">✅ 推荐食物</h4>
+    <div class="food-grid">
+      ${d.foods.map(f => `<div class="food-item"><div class="food-emoji">${f.emoji}</div><div class="food-name">${f.name}</div><div class="food-effect">${f.effect}</div></div>`).join('')}
+    </div>
+    <h4 style="font-size:14px;font-weight:700;color:var(--danger);margin-bottom:12px">✗ 饮食禁忌</h4>
+    <div class="avoid-grid">${d.avoid.map(a => `<span class="avoid-tag">${a}</span>`).join('')}</div>
+    <div style="margin-top:20px;padding:14px 16px;background:rgba(42,157,143,0.05);border:1px solid rgba(42,157,143,0.15);border-radius:10px">
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8">💡 <strong>饮食小贴士：</strong>${d.tips}</p>
+    </div>`;
+
+  // 穴位
+  document.getElementById('acupointContent').innerHTML = `
+    <div class="acupoint-grid">
+      ${data.acupoints.map(a => `
+        <div class="acupoint-card">
+          <div class="acupoint-name">📍 ${a.name}</div>
+          <div class="acupoint-location">📌 位置：${a.location}</div>
+          <div class="acupoint-method">🖐 操作方法：${a.method}</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:16px;padding:12px 16px;background:rgba(201,162,39,0.05);border:1px solid rgba(201,162,39,0.15);border-radius:10px">
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.7">⏰ <strong>按摩时间建议：</strong>每日睡前30-60分钟进行，按摩时保持放松状态，力度以酸胀感为宜。如按摩后有明显不适，请停止并咨询医师。</p>
+    </div>`;
+
+  // 情志
+  document.getElementById('emotionContent').innerHTML = `
+    <div class="lifestyle-list">
+      ${data.emotion.map(e => `
+        <div class="lifestyle-item">
+          <div class="lifestyle-icon">${e.icon}</div>
+          <div class="lifestyle-text"><strong>${e.title}</strong>${e.text}</div>
+        </div>`).join('')}
+    </div>`;
+
+  // 起居
+  document.getElementById('lifestyleContent').innerHTML = `
+    <div class="lifestyle-list">
+      ${data.lifestyle.map(l => `
+        <div class="lifestyle-item">
+          <div class="lifestyle-icon">${l.icon}</div>
+          <div class="lifestyle-text"><strong>${l.title}</strong>${l.text}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function switchPlan(idx, btn) {
+  document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.plan-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`panel${idx}`).classList.add('active');
+}
+
+function printPlan() {
+  window.print();
+}
+</script>
+</body>
+</html>
