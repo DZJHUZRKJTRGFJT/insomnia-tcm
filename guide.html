@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用指南 - 中医失眠调养系统</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+body{background:#0D0D1A;color:#E2E8F0}
+.pub-nav{background:rgba(13,13,26,.92);border-bottom:1px solid rgba(107,79,160,.3);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.pub-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.pub-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#4A2E80,#6B4FA0);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.pub-logo-text{font-size:15px;font-weight:700;color:#E2E8F0}
+.pub-nav-links{display:flex;gap:6px}
+.pub-nav-links a{color:#94A3B8;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:14px;transition:.2s}
+.pub-nav-links a:hover,.pub-nav-links a.active{background:rgba(107,79,160,.18);color:#C4B5FD}
+.nav-auth-btns{display:flex;gap:10px}
+.nav-btn-outline{background:transparent;border:1px solid rgba(107,79,160,.5);color:#C4B5FD;padding:7px 18px;border-radius:8px;font-size:13px;cursor:pointer;transition:.2s;text-decoration:none}
+.nav-btn-fill{background:linear-gradient(135deg,#4A2E80,#6B4FA0);color:#fff;border:none;padding:7px 18px;border-radius:8px;font-size:13px;cursor:pointer;transition:.2s;text-decoration:none}
+
+.guide-hero{padding:50px 40px 36px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(107,79,160,.15) 0%,transparent 60%)}
+.guide-hero h1{font-size:36px;font-weight:800;margin-bottom:10px}
+.grad{background:linear-gradient(135deg,#C4B5FD,#818CF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.guide-hero p{color:#94A3B8;font-size:15px}
+
+.container{max-width:960px;margin:0 auto;padding:0 24px 60px}
+.guide-layout{display:grid;grid-template-columns:200px 1fr;gap:28px;margin-top:32px}
+.guide-nav{background:#111827;border:1px solid rgba(107,79,160,.2);border-radius:14px;padding:14px;position:sticky;top:80px;align-self:start}
+.guide-nav-group{margin-bottom:12px}
+.guide-nav-group-title{font-size:11px;color:#64748B;padding:4px 8px;text-transform:uppercase;letter-spacing:.5px}
+.guide-nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;color:#94A3B8;font-size:13px;transition:.2s;text-decoration:none}
+.guide-nav-item:hover,.guide-nav-item.active{background:rgba(107,79,160,.15);color:#C4B5FD}
+
+/* Step sections */
+.guide-section{margin-bottom:48px}
+.section-anchor{height:1px;margin-top:-80px;padding-top:80px;visibility:hidden}
+.section-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(107,79,160,.12);border:1px solid rgba(107,79,160,.3);padding:5px 14px;border-radius:20px;font-size:12px;color:#C4B5FD;margin-bottom:14px}
+.section-title{font-size:22px;font-weight:800;color:#E2E8F0;margin-bottom:8px}
+.section-desc{color:#94A3B8;font-size:14px;line-height:1.8;margin-bottom:20px}
+
+/* Cards */
+.guide-card{background:#111827;border:1px solid rgba(107,79,160,.2);border-radius:14px;padding:20px;margin-bottom:16px}
+.guide-card h4{font-size:15px;font-weight:700;color:#E2E8F0;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.guide-card p,.guide-card li{font-size:13px;color:#CBD5E1;line-height:1.8}
+.guide-card ul{padding-left:20px;margin:6px 0}
+.guide-card ol{padding-left:20px;margin:6px 0}
+.guide-card ol li{margin-bottom:6px}
+
+/* Step flow */
+.step-flow{display:flex;flex-direction:column;gap:0}
+.step-item{display:flex;gap:16px;padding-bottom:24px;position:relative}
+.step-item::before{content:'';position:absolute;left:18px;top:36px;bottom:0;width:2px;background:linear-gradient(to bottom,rgba(107,79,160,.4),transparent)}
+.step-item:last-child::before{display:none}
+.step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4A2E80,#6B4FA0);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;z-index:1}
+.step-content{flex:1;padding-top:6px}
+.step-content h4{font-size:15px;font-weight:700;color:#E2E8F0;margin-bottom:6px}
+.step-content p{font-size:13px;color:#94A3B8;line-height:1.7;margin:0}
+.step-content .step-tip{background:rgba(107,79,160,.08);border:1px solid rgba(107,79,160,.2);border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12px;color:#C4B5FD}
+
+/* FAQ */
+.faq-item{border:1px solid rgba(107,79,160,.15);border-radius:12px;overflow:hidden;margin-bottom:10px}
+.faq-q{padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:#E2E8F0;transition:.2s}
+.faq-q:hover{background:rgba(107,79,160,.08)}
+.faq-q .arrow{transition:.3s;color:#64748B}
+.faq-a{display:none;padding:0 18px 16px;font-size:13px;color:#94A3B8;line-height:1.8;border-top:1px solid rgba(107,79,160,.1)}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .arrow{transform:rotate(180deg);color:#C4B5FD}
+.faq-item.open .faq-q{color:#C4B5FD;background:rgba(107,79,160,.06)}
+
+/* Demo account card */
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.demo-card{background:#111827;border:1px solid rgba(107,79,160,.25);border-radius:14px;padding:20px}
+.demo-card-title{font-size:14px;font-weight:700;color:#E2E8F0;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.demo-field{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.demo-label{font-size:11px;color:#64748B}
+.demo-value{font-size:13px;color:#E2E8F0;background:#1A2035;padding:6px 10px;border-radius:6px;font-family:monospace;display:flex;justify-content:space-between;align-items:center}
+.copy-btn{background:none;border:none;color:#C4B5FD;font-size:11px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:.2s}
+.copy-btn:hover{background:rgba(107,79,160,.2)}
+.btn-login-demo{display:block;width:100%;background:linear-gradient(135deg,#4A2E80,#6B4FA0);color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;cursor:pointer;text-align:center;text-decoration:none;margin-top:4px;transition:.2s}
+.btn-login-demo:hover{opacity:.9}
+
+/* Footer */
+.pub-footer{background:#0A0A12;border-top:1px solid rgba(107,79,160,.2);padding:32px 40px 16px;text-align:center;color:#475569;font-size:13px}
+@media(max-width:900px){.guide-layout{grid-template-columns:1fr}.guide-nav{position:static}.demo-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="pub-nav">
+  <a href="index.html" class="pub-logo">
+    <div class="pub-logo-icon">🌙</div>
+    <span class="pub-logo-text">中医失眠调养系统</span>
+  </a>
+  <div class="pub-nav-links">
+    <a href="index.html">首页</a>
+    <a href="about.html">系统介绍</a>
+    <a href="knowledge-base.html">中医知识库</a>
+    <a href="guide.html" class="active">使用指南</a>
+  </div>
+  <div class="nav-auth-btns" id="navAuth">
+    <a href="login.html" class="nav-btn-outline">登录</a>
+    <a href="register.html" class="nav-btn-fill">免费注册</a>
+  </div>
+</nav>
+
+<div class="guide-hero">
+  <h1>使用<span class="grad">指南</span></h1>
+  <p>从注册到获得调养方案，5分钟快速上手</p>
+</div>
+
+<div class="container">
+<div class="guide-layout">
+
+  <!-- 左侧导航 -->
+  <div class="guide-nav">
+    <div class="guide-nav-group">
+      <div class="guide-nav-group-title">快速开始</div>
+      <a class="guide-nav-item active" href="#demo"><span>🎮</span>体验账号</a>
+      <a class="guide-nav-item" href="#register"><span>📝</span>注册账号</a>
+      <a class="guide-nav-item" href="#login"><span>🔐</span>登录方式</a>
+    </div>
+    <div class="guide-nav-group">
+      <div class="guide-nav-group-title">用户操作</div>
+      <a class="guide-nav-item" href="#assessment"><span>🔍</span>AI评估步骤</a>
+      <a class="guide-nav-item" href="#result"><span>📊</span>查看结果</a>
+      <a class="guide-nav-item" href="#plan"><span>📋</span>调养方案</a>
+      <a class="guide-nav-item" href="#tracking"><span>📈</span>趋势追踪</a>
+    </div>
+    <div class="guide-nav-group">
+      <div class="guide-nav-group-title">医生功能</div>
+      <a class="guide-nav-item" href="#doctor-guide"><span>🏥</span>医生端导览</a>
+    </div>
+    <div class="guide-nav-group">
+      <div class="guide-nav-group-title">帮助</div>
+      <a class="guide-nav-item" href="#faq"><span>❓</span>常见问题</a>
+    </div>
+  </div>
+
+  <!-- 右侧内容 -->
+  <div>
+
+    <!-- 体验账号 -->
+    <div class="guide-section">
+      <div id="demo" class="section-anchor"></div>
+      <div class="section-badge">🎮 无需注册</div>
+      <div class="section-title">立即体验</div>
+      <p class="section-desc">使用以下演示账号，无需注册即可体验系统全部功能。</p>
+      <div class="demo-grid">
+        <div class="demo-card">
+          <div class="demo-card-title">👤 普通用户体验账号</div>
+          <div class="demo-field">
+            <div class="demo-label">手机号</div>
+            <div class="demo-value">13800138000 <button class="copy-btn" onclick="copyText('13800138000')">复制</button></div>
+          </div>
+          <div class="demo-field">
+            <div class="demo-label">密码</div>
+            <div class="demo-value">123456 <button class="copy-btn" onclick="copyText('123456')">复制</button></div>
+          </div>
+          <a href="login.html" class="btn-login-demo">🚀 去登录（用户端）</a>
+        </div>
+        <div class="demo-card" style="border-color:rgba(42,157,143,.3)">
+          <div class="demo-card-title">🏥 医生端体验账号</div>
+          <div class="demo-field">
+            <div class="demo-label">手机号</div>
+            <div class="demo-value">13700137000 <button class="copy-btn" onclick="copyText('13700137000')">复制</button></div>
+          </div>
+          <div class="demo-field">
+            <div class="demo-label">密码</div>
+            <div class="demo-value">123456 <button class="copy-btn" onclick="copyText('123456')">复制</button></div>
+          </div>
+          <a href="login.html" class="btn-login-demo" style="background:linear-gradient(135deg,#1a7a6e,#2A9D8F)">🚀 去登录（医生端）</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 注册 -->
+    <div class="guide-section">
+      <div id="register" class="section-anchor"></div>
+      <div class="section-badge">📝 第一步</div>
+      <div class="section-title">注册账号</div>
+      <div class="step-flow">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>访问注册页面</h4>
+            <p>点击首页右上角「免费注册」按钮，或直接访问 <code style="color:#C4B5FD">register.html</code> 页面。</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>选择角色</h4>
+            <p>页面顶部选择您的身份：<b>普通用户</b>（失眠患者/健康人群）或 <b>医生用户</b>（需填写执业机构信息）。两种角色享有不同的功能权限。</p>
+            <div class="step-tip">⚠️ 角色选择后不可更改，请按实际情况选择。医生账号须提供真实的医院/科室信息。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>填写基本信息</h4>
+            <p>输入手机号、姓名、密码（至少6位）及必要的个人信息。医生还需额外填写医院名称、所在科室和职称。</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>完成注册并登录</h4>
+            <p>注册成功后系统自动跳转至登录页面，使用刚注册的手机号和密码即可登录。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 登录 -->
+    <div class="guide-section">
+      <div id="login" class="section-anchor"></div>
+      <div class="section-badge">🔐 账号登录</div>
+      <div class="section-title">登录方式说明</div>
+      <div class="guide-card">
+        <h4>🔀 角色切换登录</h4>
+        <p>登录页面顶部设有「用户登录 / 医生登录」切换按钮，请先切换到对应角色再输入账号密码，否则可能提示账号不匹配。</p>
+        <ul>
+          <li>普通用户：选「用户登录」，输入手机号+密码</li>
+          <li>医生用户：选「医生登录」，输入手机号+密码</li>
+          <li>点击「演示账号」按钮可一键填入体验账号</li>
+        </ul>
+      </div>
+      <div class="guide-card">
+        <h4>🏠 登录后页面跳转</h4>
+        <p>系统自动根据角色跳转：普通用户进入个人健康主页（<code style="color:#C4B5FD">user/dashboard.html</code>），医生进入工作台（<code style="color:#C4B5FD">doctor/dashboard.html</code>）。</p>
+      </div>
+    </div>
+
+    <!-- AI评估 -->
+    <div class="guide-section">
+      <div id="assessment" class="section-anchor"></div>
+      <div class="section-badge">🔍 核心功能</div>
+      <div class="section-title">AI辨证评估操作步骤</div>
+      <p class="section-desc">评估全程约需3-5分钟，请在安静的环境下认真填写，以获得更准确的辨证结果。</p>
+      <div class="step-flow">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>进入评估页面</h4>
+            <p>登录后点击左侧导航「AI辨证评估」，或在健康主页点击「开始评估」快捷卡片。</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>第1步：睡眠主症</h4>
+            <p>从列表中选择您当前最主要的睡眠问题，如「入睡困难」「早醒」「彻夜不寐」等，<b>单选</b>。</p>
+            <div class="step-tip">💡 请选择近2周内出现频率最高、症状最重的睡眠表现。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>第2步：伴随症状</h4>
+            <p>勾选所有您正在出现的伴随身体症状，支持<b>多选</b>。症状越详细，辨证越准确。</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>第3步：情志状态</h4>
+            <p>选择近期主要的情绪或精神状态，如「急躁易怒」「忧思过度」「胆小恐惧」等，<b>可多选</b>。</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>第4步：饮食与二便</h4>
+            <p>如实填写饮食状况（食欲、消化）和大小便情况，这是重要的辨证参考依据。</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <h4>第5步：舌象脉象（可选）</h4>
+            <p>若能自我观察舌头颜色/苔色，或由医生把过脉，请填写相关信息。此步骤可跳过，但填写后辨证准确度更高。</p>
+            <div class="step-tip">📌 舌象脉象在AI算法中权重最高（4-6分），如实填写可显著提升辨证准确率。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">7</div>
+          <div class="step-content">
+            <h4>确认提交</h4>
+            <p>在最后一步确认页面核对所填信息，确认无误后点击「提交辨证」，AI引擎将在数秒内计算出辨证结果。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 查看结果 -->
+    <div class="guide-section">
+      <div id="result" class="section-anchor"></div>
+      <div class="section-badge">📊 辨证结果</div>
+      <div class="section-title">如何解读辨证结果</div>
+      <div class="guide-card">
+        <h4>🎯 主证型</h4>
+        <p>页面顶部大字显示本次辨证最高得分的证型，即为您当前最主要的失眠证型。如显示「心脾两虚」则表明您的失眠主要由心脾气血不足引起。</p>
+      </div>
+      <div class="guide-card">
+        <h4>📉 五证型分数环</h4>
+        <p>五个环形进度条分别展示您对应五大证型的评分（0-100）。得分越高说明与该证型的符合度越高。多个证型得分均较高时，可能为混合证型。</p>
+      </div>
+      <div class="guide-card">
+        <h4>🔬 辨证依据列表</h4>
+        <p>列出支持当前诊断的症状证据，并标注权重标签（关键症状/主症/次症）。权重越高，说明该症状对辨证的影响越大。</p>
+        <ul>
+          <li><b style="color:#ef4444">关键症状</b>：权重最高（4-6分），通常为舌脉象</li>
+          <li><b style="color:#f97316">主症</b>：权重较高（3-5分），为证型典型表现</li>
+          <li><b style="color:#C4B5FD">次症</b>：权重较低（1-2分），为辅助参考症状</li>
+        </ul>
+      </div>
+      <div class="guide-card">
+        <h4>⚠️ 结果免责说明</h4>
+        <p>AI辨证结果仅供参考，不代替执业中医师的临床诊断。若症状较重或持续时间较长，请及时到正规医疗机构就诊。</p>
+      </div>
+    </div>
+
+    <!-- 调养方案 -->
+    <div class="guide-section">
+      <div id="plan" class="section-anchor"></div>
+      <div class="section-badge">📋 调养方案</div>
+      <div class="section-title">五维调养方案使用说明</div>
+      <div class="guide-card">
+        <h4>📑 方案五大模块</h4>
+        <ol>
+          <li><b>基础参考方药</b>：依据辨证结果推荐经典方剂（含君臣佐使分析），仅供医生参考，不建议自行购药服用</li>
+          <li><b>饮食调理</b>：推荐有益食物清单、食疗菜谱及禁忌食物，易于日常执行</li>
+          <li><b>穴位按摩</b>：精选3-5个对应证型的安神穴位，提供详细定位和按摩手法</li>
+          <li><b>情志调节</b>：根据证型情绪特点，提供针对性的情绪管理和心理调适建议</li>
+          <li><b>起居调摄</b>：科学作息时间建议、睡前准备流程和生活习惯改善方案</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- 趋势追踪 -->
+    <div class="guide-section">
+      <div id="tracking" class="section-anchor"></div>
+      <div class="section-badge">📈 数据追踪</div>
+      <div class="section-title">睡眠趋势分析功能</div>
+      <div class="guide-card">
+        <h4>📊 如何启用趋势分析</h4>
+        <p>需要<b>完成2次及以上</b>的AI辨证评估后，系统方可绘制趋势图。建议每隔1-2周进行一次评估，以观察调养效果。</p>
+        <ul>
+          <li>折线图：证型得分随时间变化的走势</li>
+          <li>饼图：多次评估中各证型出现频率分布</li>
+          <li>雷达图：症状维度对比（最近两次评估）</li>
+          <li>AI文字分析：智能总结趋势变化并给出建议</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 医生端 -->
+    <div class="guide-section">
+      <div id="doctor-guide" class="section-anchor"></div>
+      <div class="section-badge">🏥 医生专区</div>
+      <div class="section-title">医生端功能导览</div>
+      <div class="guide-card">
+        <h4>📋 工作台（首页）</h4>
+        <p>快速了解今日数据概览：新增患者数、评估次数、待随访患者列表、证型分布饼图，以及近7天活跃情况。</p>
+      </div>
+      <div class="guide-card">
+        <h4>👥 患者管理</h4>
+        <p>查看所有注册用户信息，支持按姓名、证型、随访状态搜索，可为患者标注随访状态（随访中/稳定/已结案）。</p>
+      </div>
+      <div class="guide-card">
+        <h4>📋 病例查阅</h4>
+        <p>查看患者每次AI辨证的详细记录，包括主症、伴随症状、舌脉象、证型评分分布等完整信息，支持添加医生备注。</p>
+      </div>
+      <div class="guide-card">
+        <h4>📈 数据统计</h4>
+        <p>可视化呈现整体用户数据：月度评估量趋势、证型分布比例、年龄性别画像、Top症状频率、活跃患者排行等。</p>
+      </div>
+      <div class="guide-card">
+        <h4>📚 知识库管理</h4>
+        <p>查看和管理系统AI辨证规则库：证型核心症状库（含权重）、症状权重规则表、调养方案对照库，支持医生备注。</p>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="guide-section">
+      <div id="faq" class="section-anchor"></div>
+      <div class="section-badge">❓ 常见问题</div>
+      <div class="section-title">常见问题解答</div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">AI辨证结果准确吗？可以代替去医院看病吗？<span class="arrow">▼</span></div>
+        <div class="faq-a">本系统的AI辨证基于中医经典理论构建的规则推理引擎，参考《中医内科学》十四五规划教材及《中医睡眠疾病诊疗指南》制定权重规则，具有一定的参考价值。但<b>不能代替执业中医师的临床诊断</b>。如症状严重、持续时间长或伴有其他疾病，请务必到正规医疗机构就诊。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">我的健康数据会被上传到服务器吗？<span class="arrow">▼</span></div>
+        <div class="faq-a">本系统为纯前端实现，所有用户数据（评估记录、账号信息、调养进度）均保存在您本地浏览器的 LocalStorage 中，<b>不会上传到任何服务器</b>。清除浏览器缓存会导致数据丢失，请注意备份。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">评估结果和上次不同，是因为系统出错了吗？<span class="arrow">▼</span></div>
+        <div class="faq-a">不是。AI辨证结果完全取决于您每次填写的症状信息。人的身体状况随时间变化，不同阶段填写的症状不同，结果自然不同。这也是建议定期评估追踪变化的原因。若结果偏差较大，建议重新仔细填写，尤其注意舌象脉象的填写。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">调养方案中的中药可以自行购买服用吗？<span class="arrow">▼</span></div>
+        <div class="faq-a">系统提供的参考方药（如归脾汤、天王补心丹等）均为经典方剂，但<b>中药处方需由有执业资质的中医师根据个人实际情况开具</b>，切勿自行购买服用。本系统提供的方剂信息仅供医生参考。建议将辨证结果打印或截图带给就诊医生参考。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">如何获得更准确的辨证结果？<span class="arrow">▼</span></div>
+        <div class="faq-a">① 认真如实填写所有步骤，不要跳过任何选项；② 尽量填写舌象脉象（此项权重最高）；③ 在静息状态下填写，避免刚运动、饮酒后填写；④ 近2周内规律性出现的症状才算，偶发性症状可不选；⑤ 定期（每1-2周）重复评估，比较趋势变化。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">历史记录丢失了怎么办？<span class="arrow">▼</span></div>
+        <div class="faq-a">数据存储在浏览器 LocalStorage 中，以下情况可能导致数据丢失：① 清除了浏览器缓存或历史记录；② 使用了隐身/无痕模式；③ 更换了浏览器或设备。<br>目前系统不提供云同步功能。建议在使用过程中定期截图保存重要记录。</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<footer class="pub-footer">
+  <p>使用过程中遇到问题，请参考以上指南或重新登录尝试。</p>
+  <p style="margin-top:8px;color:#374151">© 2024 中医原发性失眠智能辅助调养系统  ·  仅供学习参考使用</p>
+</footer>
+
+<script src="js/common.js"></script>
+<script>
+function toggleFaq(el){el.parentElement.classList.toggle('open');}
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>showToast('已复制: '+text,'success')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('已复制','success');
+  });
+}
+// Highlight nav on scroll
+const sections=document.querySelectorAll('.section-anchor');
+const navItems=document.querySelectorAll('.guide-nav-item');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(window.scrollY>=s.offsetTop-100)cur=s.id;});
+  navItems.forEach(n=>{n.classList.toggle('active',n.getAttribute('href')==='#'+cur);});
+});
+window.addEventListener('DOMContentLoaded',()=>{
+  const u=getCurrentUser();
+  if(u){
+    document.getElementById('navAuth').innerHTML=`
+      <span style="color:#C4B5FD;font-size:13px">👋 ${u.name}</span>
+      <a href="${u.role==='doctor'?'doctor/dashboard.html':'user/dashboard.html'}" class="nav-btn-fill">进入系统</a>`;
+  }
+});
+</script>
+</body>
+</html>
