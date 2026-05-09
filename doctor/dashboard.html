@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>医生工作台 · 安眠智道</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #0A0A1A; }
+
+/* 医生端特殊配色 */
+:root {
+  --doc-primary: #1E6B8C;
+  --doc-accent: #2A9D8F;
+  --doc-gold: #E9C46A;
+}
+
+/* 顶部横幅 */
+.doc-banner {
+  background: linear-gradient(135deg, #0D2137 0%, #0A3A3A 50%, #1A1060 100%);
+  border-radius: 20px; padding: 32px 36px; margin-bottom: 28px;
+  border: 1px solid rgba(42,157,143,0.2);
+  position: relative; overflow: hidden;
+}
+
+.doc-banner::after {
+  content: '⚕️'; position: absolute;
+  right: 40px; top: 50%; transform: translateY(-50%);
+  font-size: 90px; opacity: 0.06;
+}
+
+.doc-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.doc-sub { font-size: 14px; color: rgba(255,255,255,0.5); }
+
+.doc-stats-row {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 16px; margin-top: 24px;
+}
+
+.doc-stat {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 14px 16px; text-align: center;
+}
+
+.doc-stat .num { font-size: 28px; font-weight: 900; color: var(--doc-gold); }
+.doc-stat .lbl { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+/* 区域网格 */
+.doc-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+
+.doc-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.doc-card-header {
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.doc-card-header h3 {
+  font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.9);
+}
+
+.doc-card-header a {
+  font-size: 13px; color: var(--doc-gold); font-weight: 600;
+}
+
+.doc-card-body { padding: 20px 24px; }
+
+/* 患者列表 */
+.patient-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer; transition: var(--transition);
+}
+
+.patient-item:hover { background: rgba(255,255,255,0.02); margin: 0 -8px; padding-left: 8px; padding-right: 8px; border-radius: 8px; }
+.patient-item:last-child { border-bottom: none; }
+
+.patient-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--doc-primary), var(--doc-accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+
+.patient-info { flex: 1; }
+.patient-name { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 2px; }
+.patient-meta { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+.patient-status {
+  font-size: 12px; font-weight: 600; padding: 4px 10px;
+  border-radius: 10px; flex-shrink: 0;
+}
+
+.ps-active { background: rgba(42,157,143,0.15); color: #3DBFAF; border: 1px solid rgba(42,157,143,0.2); }
+.ps-new { background: rgba(201,162,39,0.15); color: var(--secondary-light); border: 1px solid rgba(201,162,39,0.2); }
+.ps-wait { background: rgba(107,79,160,0.15); color: var(--primary-light); border: 1px solid rgba(107,79,160,0.2); }
+
+/* 证型分布 */
+.syndrome-stat-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.syndrome-stat-item:last-child { border-bottom: none; }
+
+.ss-name { font-size: 13px; color: rgba(255,255,255,0.75); min-width: 80px; }
+
+.ss-bar-wrap { flex: 1; }
+.ss-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.ss-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+.ss-count { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.7); min-width: 28px; text-align: right; }
+
+/* 待办事项 */
+.todo-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.todo-item:last-child { border-bottom: none; }
+.todo-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+.td-urgent { background: var(--danger); }
+.td-normal { background: var(--doc-accent); }
+.td-low { background: rgba(255,255,255,0.3); }
+.todo-content { flex: 1; }
+.todo-title { font-size: 14px; color: rgba(255,255,255,0.85); margin-bottom: 2px; }
+.todo-time { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+/* 快捷入口 */
+.doc-quick { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+
+.doc-quick-btn {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 20px 16px; text-align: center;
+  cursor: pointer; text-decoration: none; display: block;
+  transition: var(--transition);
+}
+
+.doc-quick-btn:hover {
+  background: rgba(42,157,143,0.1); border-color: rgba(42,157,143,0.3);
+  transform: translateY(-3px);
+}
+
+.doc-quick-icon { font-size: 28px; margin-bottom: 8px; }
+.doc-quick-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); }
+.doc-quick-sub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+
+/* 通知 */
+.notification-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.notification-item:last-child { border-bottom: none; }
+.notif-icon { font-size: 18px; flex-shrink: 0; }
+.notif-text { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+.notif-time { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+@media (max-width: 1200px) {
+  .doc-stats-row { grid-template-columns: repeat(3, 1fr); }
+  .doc-grid { grid-template-columns: 1fr; }
+  .doc-quick { grid-template-columns: repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+<!-- 顶部导航 - 医生端深色 -->
+<nav class="navbar" id="navbar" style="background: rgba(8,8,20,0.92); border-bottom-color: rgba(42,157,143,0.2);">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <div class="brand-icon" style="background: linear-gradient(135deg, #1E6B8C, #2A9D8F);">⚕️</div>
+      <div class="brand-text">
+        <span class="brand-name" style="-webkit-text-fill-color:transparent;background: linear-gradient(135deg, #2A9D8F, #3DBFAF);-webkit-background-clip:text;">安眠智道</span>
+        <span class="brand-sub">医生工作台</span>
+      </div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="../index.html" style="color:rgba(255,255,255,0.6)">返回首页</a></li>
+      <li><a href="../knowledge-base.html" style="color:rgba(255,255,255,0.6)">知识库</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span class="btn-login" id="navUser">医生端</span>
+      <button class="btn-register" style="background: linear-gradient(135deg, #1E6B8C, #2A9D8F); color:#fff;" onclick="logoutUser()">退出登录</button>
+    </div>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <!-- 医生侧边栏 -->
+  <aside class="sidebar">
+    <div class="sidebar-user" id="sidebarUser" style="background: rgba(42,157,143,0.1); border: 1px solid rgba(42,157,143,0.15);">
+      <div class="sidebar-avatar" id="sidebarAvatar" style="background: linear-gradient(135deg, #1E6B8C, #2A9D8F);">医</div>
+      <div class="sidebar-username" id="sidebarName">陈明华医生</div>
+      <span class="sidebar-role" style="background: rgba(42,157,143,0.15); color: #3DBFAF; border-color: rgba(42,157,143,0.3);">副主任医师</span>
+    </div>
+
+    <p class="sidebar-section-title">工作台</p>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="active">🏥 工作台首页</a>
+      <a href="patients.html">👥 患者管理</a>
+      <a href="cases.html">📋 病例查阅</a>
+      <a href="statistics.html">📊 数据统计</a>
+    </nav>
+
+    <p class="sidebar-section-title" style="margin-top: 16px;">管理</p>
+    <nav class="sidebar-nav">
+      <a href="knowledge.html">📚 知识库管理</a>
+      <a href="settings.html">⚙️ 系统设置</a>
+      <a href="../guide.html">❓ 帮助文档</a>
+    </nav>
+
+    <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06);">
+      <div style="background: rgba(42,157,143,0.08); border: 1px solid rgba(42,157,143,0.15); border-radius: 10px; padding: 14px;">
+        <p style="font-size:12px; color: rgba(255,255,255,0.5); line-height: 1.7;">
+          ⚕️ <strong style="color: rgba(255,255,255,0.7);">辅助工具提示</strong><br>
+          本系统为辅助工具，临床辨证与处方决策由医生负责，系统提供辅助参考。
+        </p>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content" style="background: #0A0A1A;">
+    <!-- 工作台横幅 -->
+    <div class="doc-banner">
+      <div style="display:flex; align-items: flex-start; justify-content: space-between;">
+        <div>
+          <div class="doc-title" id="docWelcome">你好，陈医生</div>
+          <div class="doc-sub" id="docDate">今日：2026年5月9日 星期六</div>
+        </div>
+        <a href="patients.html" style="display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg, #1E6B8C, #2A9D8F); color:#fff; padding: 12px 24px; border-radius: 10px; font-size:14px; font-weight:700; text-decoration:none; transition: var(--transition);">
+          👥 管理患者 →
+        </a>
+      </div>
+      <div class="doc-stats-row">
+        <div class="doc-stat"><div class="num">28</div><div class="lbl">今日查阅病例</div></div>
+        <div class="doc-stat"><div class="num">142</div><div class="lbl">累计管理患者</div></div>
+        <div class="doc-stat"><div class="num">5</div><div class="lbl">待处理通知</div></div>
+        <div class="doc-stat"><div class="num">89%</div><div class="lbl">AI辨证准确率</div></div>
+        <div class="doc-stat"><div class="num">21天</div><div class="lbl">最长调养追踪</div></div>
+      </div>
+    </div>
+
+    <!-- 快捷入口 -->
+    <div class="doc-quick">
+      <a href="patients.html" class="doc-quick-btn">
+        <div class="doc-quick-icon">👥</div>
+        <div class="doc-quick-label">患者管理</div>
+        <div class="doc-quick-sub">查看患者列表</div>
+      </a>
+      <a href="cases.html" class="doc-quick-btn">
+        <div class="doc-quick-icon">📋</div>
+        <div class="doc-quick-label">病例查阅</div>
+        <div class="doc-quick-sub">辨证记录分析</div>
+      </a>
+      <a href="statistics.html" class="doc-quick-btn">
+        <div class="doc-quick-icon">📊</div>
+        <div class="doc-quick-label">数据统计</div>
+        <div class="doc-quick-sub">趋势与分布</div>
+      </a>
+      <a href="knowledge.html" class="doc-quick-btn">
+        <div class="doc-quick-icon">📚</div>
+        <div class="doc-quick-label">知识库管理</div>
+        <div class="doc-quick-sub">辨证规则维护</div>
+      </a>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="doc-grid">
+      <!-- 最近患者 -->
+      <div class="doc-card">
+        <div class="doc-card-header">
+          <h3>👥 最近活跃患者</h3>
+          <a href="patients.html">查看全部 →</a>
+        </div>
+        <div class="doc-card-body">
+          <div class="patient-item" onclick="window.location='cases.html'">
+            <div class="patient-avatar">赵</div>
+            <div class="patient-info">
+              <div class="patient-name">赵晓梅</div>
+              <div class="patient-meta">女 · 28岁 · 最新辨证：心脾两虚 · 2026-05-08</div>
+            </div>
+            <span class="patient-status ps-active">调养中</span>
+          </div>
+          <div class="patient-item" onclick="window.location='cases.html'">
+            <div class="patient-avatar">李</div>
+            <div class="patient-info">
+              <div class="patient-name">李建国</div>
+              <div class="patient-meta">男 · 45岁 · 最新辨证：肝火扰心 · 2026-05-07</div>
+            </div>
+            <span class="patient-status ps-new">新增</span>
+          </div>
+          <div class="patient-item" onclick="window.location='cases.html'">
+            <div class="patient-avatar">王</div>
+            <div class="patient-info">
+              <div class="patient-name">王玲玲</div>
+              <div class="patient-meta">女 · 53岁 · 最新辨证：心肾不交 · 2026-05-06</div>
+            </div>
+            <span class="patient-status ps-active">调养中</span>
+          </div>
+          <div class="patient-item" onclick="window.location='cases.html'">
+            <div class="patient-avatar">张</div>
+            <div class="patient-info">
+              <div class="patient-name">张伟明</div>
+              <div class="patient-meta">男 · 38岁 · 最新辨证：痰热扰心 · 2026-05-05</div>
+            </div>
+            <span class="patient-status ps-wait">待回访</span>
+          </div>
+          <div class="patient-item" onclick="window.location='cases.html'">
+            <div class="patient-avatar">刘</div>
+            <div class="patient-info">
+              <div class="patient-name">刘秀兰</div>
+              <div class="patient-meta">女 · 61岁 · 最新辨证：心胆气虚 · 2026-05-04</div>
+            </div>
+            <span class="patient-status ps-active">调养中</span>
+          </div>
+          <div class="patient-item" onclick="window.location='cases.html'">
+            <div class="patient-avatar">陈</div>
+            <div class="patient-info">
+              <div class="patient-name">陈小峰</div>
+              <div class="patient-meta">男 · 32岁 · 最新辨证：心脾两虚（兼心肾不交）· 2026-05-03</div>
+            </div>
+            <span class="patient-status ps-wait">待回访</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧栏 -->
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <!-- 证型分布 -->
+        <div class="doc-card">
+          <div class="doc-card-header">
+            <h3>📊 近期证型分布</h3>
+            <a href="statistics.html">详情 →</a>
+          </div>
+          <div class="doc-card-body">
+            <div class="syndrome-stat-item">
+              <span class="ss-name">心脾两虚</span>
+              <div class="ss-bar-wrap"><div class="ss-bar"><div class="ss-fill" style="width:42%; background:#27AE60"></div></div></div>
+              <span class="ss-count">42%</span>
+            </div>
+            <div class="syndrome-stat-item">
+              <span class="ss-name">肝火扰心</span>
+              <div class="ss-bar-wrap"><div class="ss-bar"><div class="ss-fill" style="width:25%; background:#E74C3C"></div></div></div>
+              <span class="ss-count">25%</span>
+            </div>
+            <div class="syndrome-stat-item">
+              <span class="ss-name">心肾不交</span>
+              <div class="ss-bar-wrap"><div class="ss-bar"><div class="ss-fill" style="width:18%; background:#2980B9"></div></div></div>
+              <span class="ss-count">18%</span>
+            </div>
+            <div class="syndrome-stat-item">
+              <span class="ss-name">心胆气虚</span>
+              <div class="ss-bar-wrap"><div class="ss-bar"><div class="ss-fill" style="width:10%; background:#9B59B6"></div></div></div>
+              <span class="ss-count">10%</span>
+            </div>
+            <div class="syndrome-stat-item">
+              <span class="ss-name">痰热扰心</span>
+              <div class="ss-bar-wrap"><div class="ss-bar"><div class="ss-fill" style="width:5%; background:#F39C12"></div></div></div>
+              <span class="ss-count">5%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 待办通知 -->
+        <div class="doc-card">
+          <div class="doc-card-header">
+            <h3>🔔 通知与待办</h3>
+          </div>
+          <div class="doc-card-body">
+            <div class="notification-item">
+              <span class="notif-icon">🔴</span>
+              <div>
+                <div class="notif-text">患者张伟明已21天未回访，建议联系跟进调养情况</div>
+                <div class="notif-time">2026-05-09 09:00</div>
+              </div>
+            </div>
+            <div class="notification-item">
+              <span class="notif-icon">🟡</span>
+              <div>
+                <div class="notif-text">3例患者本周新增辨证记录，可查阅分析</div>
+                <div class="notif-time">2026-05-08 18:30</div>
+              </div>
+            </div>
+            <div class="notification-item">
+              <span class="notif-icon">🟢</span>
+              <div>
+                <div class="notif-text">知识库版本V1.2已更新，新增兼夹证辨证规则3条</div>
+                <div class="notif-time">2026-05-07 10:00</div>
+              </div>
+            </div>
+            <div class="notification-item">
+              <span class="notif-icon">🔵</span>
+              <div>
+                <div class="notif-text">本月系统共完成辨证 86 次，AI准确率较上月提升 4%</div>
+                <div class="notif-time">2026-05-01 00:00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部免责 -->
+    <div class="disclaimer-box" style="background: rgba(255,255,255,0.03); border-color: rgba(42,157,143,0.15);">
+      <span class="disclaimer-icon">⚕️</span>
+      <p style="color:rgba(255,255,255,0.5);">本系统为辅助性中医智能工具，AI辨证结果<strong style="color:rgba(255,255,255,0.7);">仅供临床参考</strong>，不替代专业医师的临床辨证与处方决策。所有临床判断与处方由执业医师负责，系统不承担医疗责任。</p>
+    </div>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const path = window.location.pathname;
+  const inDoctor = path.includes('/doctor/');
+  const user = getCurrentUser();
+
+  if (!user) { window.location.href = '../login.html'; return; }
+  if (user.role !== 'doctor') { window.location.href = '../user/dashboard.html'; return; }
+
+  document.getElementById('sidebarAvatar').textContent = user.name.charAt(0);
+  document.getElementById('sidebarName').textContent = user.name;
+  document.getElementById('navUser').textContent = user.name + ' · 医生端';
+
+  const title = (user.title ? user.title + ' · ' : '') + (user.hospital || '');
+  document.getElementById('sidebarName').title = title;
+
+  const h = new Date().getHours();
+  const greeting = h < 12 ? '早上好' : h < 18 ? '下午好' : '晚上好';
+  document.getElementById('docWelcome').textContent = `${greeting}，${user.name.replace('医生','').trim()} 医生`;
+
+  const now = new Date();
+  const days = ['周日','周一','周二','周三','周四','周五','周六'];
+  document.getElementById('docDate').textContent =
+    `今日：${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${days[now.getDay()]}`;
+});
+</script>
+</body>
+</html>
