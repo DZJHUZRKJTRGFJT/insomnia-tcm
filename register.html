@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>注册 · 安眠智道</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+.auth-page {
+  min-height: 100vh; display: flex;
+  background: var(--bg-dark); position: relative; overflow: hidden;
+}
+.auth-page::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(107,79,160,0.25) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 60% at 20% 30%, rgba(42,157,143,0.15) 0%, transparent 50%);
+}
+.auth-left {
+  width: 420px; flex-shrink: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 60px 48px;
+  position: relative; z-index: 1;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+.auth-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
+.auth-logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #C9A227, #F0C040); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.auth-logo-name { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #C9A227, #F0C040); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.auth-logo-sub { font-size: 11px; color: rgba(255,255,255,0.4); display: block; }
+.register-steps { display: flex; flex-direction: column; gap: 0; }
+.reg-step { display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; position: relative; }
+.reg-step::after { content: ''; position: absolute; left: 18px; top: 50px; width: 1px; height: calc(100% - 20px); background: rgba(107,79,160,0.2); }
+.reg-step:last-child::after { display: none; }
+.reg-step-num { width: 36px; height: 36px; background: rgba(107,79,160,0.2); border: 1px solid rgba(107,79,160,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--primary-light); flex-shrink: 0; }
+.reg-step.done .reg-step-num { background: var(--purple-gradient); border-color: transparent; color: #fff; }
+.reg-step-text strong { display: block; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); margin-bottom: 4px; }
+.reg-step-text span { font-size: 12px; color: rgba(255,255,255,0.4); }
+.auth-right { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px; position: relative; z-index: 1; }
+.auth-card { width: 100%; max-width: 500px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 40px; backdrop-filter: blur(20px); }
+.auth-card-title { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.auth-card-subtitle { font-size: 14px; color: rgba(255,255,255,0.45); margin-bottom: 32px; }
+.role-toggle { display: flex; gap: 0; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 4px; margin-bottom: 28px; }
+.role-btn { flex: 1; padding: 10px; background: transparent; border: none; cursor: pointer; border-radius: 8px; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.5); transition: all 0.3s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.role-btn.active { background: var(--purple-gradient); color: #fff; box-shadow: 0 4px 12px rgba(107,79,160,0.3); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.input-group { margin-bottom: 16px; }
+.input-label { display: block; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+.dark-input { width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 15px; color: #fff; transition: all 0.3s; font-family: inherit; outline: none; }
+.dark-input:focus { border-color: var(--primary-light); background: rgba(255,255,255,0.09); box-shadow: 0 0 0 3px rgba(107,79,160,0.2); }
+.dark-input::placeholder { color: rgba(255,255,255,0.3); }
+.dark-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.4)' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
+.dark-select option { background: #1A0A3E; color: #fff; }
+.doctor-fields { display: none; }
+.doctor-fields.show { display: block; }
+.auth-submit { width: 100%; padding: 14px; background: var(--purple-gradient); border: none; border-radius: 10px; font-size: 16px; font-weight: 700; color: #fff; cursor: pointer; transition: all 0.3s; margin-top: 8px; font-family: inherit; }
+.auth-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(107,79,160,0.4); }
+.terms-text { font-size: 12px; color: rgba(255,255,255,0.35); text-align: center; margin-top: 16px; line-height: 1.6; }
+.terms-text a { color: var(--secondary-light); }
+.auth-footer-text { text-align: center; margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.4); }
+.auth-footer-text a { color: var(--secondary-light); font-weight: 600; }
+@media (max-width: 1024px) { .auth-left { display: none; } .auth-right { padding: 32px 24px; } }
+@media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">☯</div>
+      <div>
+        <span class="auth-logo-name">安眠智道</span>
+        <span class="auth-logo-sub">中医原发性失眠辅助调养系统</span>
+      </div>
+    </div>
+    <h3 style="font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.8); margin-bottom: 32px;">注册流程</h3>
+    <div class="register-steps">
+      <div class="reg-step done" id="step1">
+        <div class="reg-step-num">1</div>
+        <div class="reg-step-text">
+          <strong>选择用户角色</strong>
+          <span>普通用户或医生，享受不同功能权限</span>
+        </div>
+      </div>
+      <div class="reg-step" id="step2">
+        <div class="reg-step-num">2</div>
+        <div class="reg-step-text">
+          <strong>填写基本信息</strong>
+          <span>手机号、密码及个人基础信息</span>
+        </div>
+      </div>
+      <div class="reg-step" id="step3">
+        <div class="reg-step-num">3</div>
+        <div class="reg-step-text">
+          <strong>完成注册，立即使用</strong>
+          <span>注册即可开始智能辨证体验</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 40px; padding: 20px; background: rgba(201,162,39,0.08); border: 1px solid rgba(201,162,39,0.2); border-radius: 12px;">
+      <p style="font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.7;">
+        💡 <strong style="color: rgba(255,255,255,0.8);">已有账号？</strong><br>
+        直接 <a href="login.html" style="color: #F0C040; font-weight: 600;">点击登录</a> 或使用演示账号快速体验系统功能。
+      </p>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <h2 class="auth-card-title">创建账号</h2>
+      <p class="auth-card-subtitle">注册后即可享受完整的智能辨证调养服务</p>
+
+      <div class="role-toggle">
+        <button class="role-btn active" id="roleUser" onclick="switchRole('user')">👤 普通用户</button>
+        <button class="role-btn" id="roleDoctor" onclick="switchRole('doctor')">⚕️ 医生</button>
+      </div>
+
+      <form id="registerForm">
+        <div class="form-row">
+          <div class="input-group">
+            <label class="input-label">姓名 *</label>
+            <input type="text" class="dark-input" id="regName" placeholder="请输入真实姓名">
+          </div>
+          <div class="input-group">
+            <label class="input-label" id="genderLabel">性别</label>
+            <select class="dark-input dark-select" id="regGender">
+              <option value="">请选择</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label class="input-label">手机号 *</label>
+            <input type="tel" class="dark-input" id="regPhone" placeholder="请输入手机号">
+          </div>
+          <div class="input-group" id="ageGroup">
+            <label class="input-label">年龄</label>
+            <input type="number" class="dark-input" id="regAge" placeholder="岁" min="1" max="120">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label class="input-label">密码 *</label>
+            <input type="password" class="dark-input" id="regPassword" placeholder="至少6位字符">
+          </div>
+          <div class="input-group">
+            <label class="input-label">确认密码 *</label>
+            <input type="password" class="dark-input" id="regPassword2" placeholder="再次输入密码">
+          </div>
+        </div>
+
+        <!-- 医生专属字段 -->
+        <div class="doctor-fields" id="doctorFields">
+          <div class="form-row">
+            <div class="input-group">
+              <label class="input-label">所在医院 *</label>
+              <input type="text" class="dark-input" id="regHospital" placeholder="请输入医院名称">
+            </div>
+            <div class="input-group">
+              <label class="input-label">科室 *</label>
+              <input type="text" class="dark-input" id="regDept" placeholder="如：中医内科">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label class="input-label">职称 *</label>
+              <select class="dark-input dark-select" id="regTitle">
+                <option value="">请选择</option>
+                <option value="住院医师">住院医师</option>
+                <option value="主治医师">主治医师</option>
+                <option value="副主任医师">副主任医师</option>
+                <option value="主任医师">主任医师</option>
+                <option value="教授">教授/研究员</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">执业证书号</label>
+              <input type="text" class="dark-input" id="regLicense" placeholder="可选填">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="auth-submit">立即注册</button>
+      </form>
+
+      <p class="terms-text">
+        注册即表示您同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a>，<br>
+        本系统为辅助工具，仅供学习与居家调养参考，不替代医师诊疗
+      </p>
+
+      <p class="auth-footer-text">
+        已有账号？<a href="login.html">立即登录</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="js/common.js"></script>
+<script>
+let currentRole = 'user';
+
+function switchRole(role) {
+  currentRole = role;
+  document.getElementById('roleUser').classList.toggle('active', role === 'user');
+  document.getElementById('roleDoctor').classList.toggle('active', role === 'doctor');
+  const doctorFields = document.getElementById('doctorFields');
+  doctorFields.classList.toggle('show', role === 'doctor');
+  document.getElementById('ageGroup').style.display = role === 'doctor' ? 'none' : '';
+}
+
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name = document.getElementById('regName').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const pwd = document.getElementById('regPassword').value;
+  const pwd2 = document.getElementById('regPassword2').value;
+
+  if (!name || !phone || !pwd || !pwd2) {
+    showToast('请填写必填信息', 'warning'); return;
+  }
+  if (pwd !== pwd2) {
+    showToast('两次密码不一致', 'error'); return;
+  }
+  if (pwd.length < 6) {
+    showToast('密码至少6位字符', 'warning'); return;
+  }
+  if (currentRole === 'doctor') {
+    const hospital = document.getElementById('regHospital').value.trim();
+    const dept = document.getElementById('regDept').value.trim();
+    const title = document.getElementById('regTitle').value;
+    if (!hospital || !dept || !title) {
+      showToast('请填写医院、科室和职称信息', 'warning'); return;
+    }
+  }
+
+  // 构建用户数据
+  const userData = {
+    name, phone, password: pwd, role: currentRole,
+    gender: document.getElementById('regGender').value,
+    ...(currentRole === 'user' ? { age: document.getElementById('regAge').value } : {
+      hospital: document.getElementById('regHospital').value.trim(),
+      dept: document.getElementById('regDept').value.trim(),
+      title: document.getElementById('regTitle').value,
+    })
+  };
+
+  // 检查是否已存在
+  const key = `${currentRole}_${phone}`;
+  if (MOCK_USERS[key]) {
+    showToast('该手机号已注册，请直接登录', 'warning'); return;
+  }
+
+  const newUser = registerUser(userData);
+  saveUser(newUser);
+  showToast(`注册成功，欢迎 ${name}！`, 'success');
+
+  setTimeout(() => {
+    window.location.href = currentRole === 'doctor' ? 'doctor/dashboard.html' : 'user/dashboard.html';
+  }, 1200);
+});
+</script>
+</body>
+</html>
