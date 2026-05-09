@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据统计 - 医生端</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+:root{--doctor-primary:#2A9D8F;--doctor-secondary:#E9C46A;--doctor-dark:#0A0A1A;--doctor-card:#111827;--doctor-border:rgba(42,157,143,.2);--doctor-text:#E2E8F0;--doctor-muted:#94A3B8}
+body{background:var(--doctor-dark);color:var(--doctor-text)}
+.sidebar{background:#0D1117;border-right:1px solid var(--doctor-border)}
+.sidebar-logo .logo-icon{background:linear-gradient(135deg,#2A9D8F,#26756C)}
+.nav-item{color:var(--doctor-muted)}
+.nav-item:hover,.nav-item.active{background:rgba(42,157,143,.12);color:var(--doctor-primary)}
+.main-content{background:var(--doctor-dark)}
+.page-title{color:var(--doctor-text)}
+.page-subtitle{color:var(--doctor-muted)}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--doctor-card);border:1px solid var(--doctor-border);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;opacity:.08}
+.kpi-card.teal::before{background:#2A9D8F}
+.kpi-card.gold::before{background:#E9C46A}
+.kpi-card.blue::before{background:#60a5fa}
+.kpi-card.rose::before{background:#fb7185}
+.kpi-icon{font-size:24px;margin-bottom:12px}
+.kpi-num{font-size:32px;font-weight:800;color:var(--doctor-text);line-height:1}
+.kpi-label{font-size:12px;color:var(--doctor-muted);margin-top:6px}
+.kpi-change{font-size:11px;margin-top:4px}
+.kpi-up{color:#22c55e}.kpi-down{color:#ef4444}
+
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.chart-card{background:var(--doctor-card);border:1px solid var(--doctor-border);border-radius:14px;padding:20px}
+.chart-card.full{grid-column:1/-1}
+.chart-title{font-size:14px;font-weight:600;color:var(--doctor-text);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.chart-title span{font-size:11px;color:var(--doctor-muted);font-weight:400}
+canvas{display:block;max-width:100%}
+
+.tab-bar{display:flex;gap:6px;margin-bottom:16px}
+.tab-pill{background:rgba(42,157,143,.08);color:var(--doctor-muted);border:1px solid var(--doctor-border);padding:5px 14px;border-radius:20px;font-size:12px;cursor:pointer;transition:.2s}
+.tab-pill.active{background:var(--doctor-primary);color:#fff;border-color:var(--doctor-primary)}
+
+.syndrome-list{display:flex;flex-direction:column;gap:10px}
+.syndrome-row{display:flex;align-items:center;gap:12px}
+.syn-name{width:70px;font-size:13px;color:var(--doctor-text);flex-shrink:0}
+.syn-track{flex:1;height:10px;background:#1A2035;border-radius:5px;overflow:hidden}
+.syn-fill{height:100%;border-radius:5px;transition:.8s}
+.syn-pct{width:35px;font-size:12px;color:var(--doctor-muted);text-align:right}
+.syn-count{width:30px;font-size:12px;color:var(--doctor-primary);text-align:right}
+
+.top-table{width:100%;border-collapse:collapse}
+.top-table th{font-size:11px;color:var(--doctor-muted);padding:8px 0;border-bottom:1px solid var(--doctor-border);text-align:left}
+.top-table td{font-size:13px;color:var(--doctor-text);padding:10px 0;border-bottom:1px solid rgba(42,157,143,.06)}
+.top-table tr:last-child td{border:none}
+.rank-num{width:24px;height:24px;border-radius:50%;background:rgba(42,157,143,.12);color:var(--doctor-primary);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.rank-num.gold-rank{background:linear-gradient(135deg,#E9C46A,#f0d070);color:#7c5c00}
+
+.trend-legend{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--doctor-muted)}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+
+.export-bar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:20px}
+.export-btn{background:rgba(42,157,143,.1);color:var(--doctor-primary);border:1px solid var(--doctor-border);padding:7px 16px;border-radius:8px;font-size:13px;cursor:pointer;transition:.2s}
+.export-btn:hover{background:rgba(42,157,143,.2)}
+.date-range{display:flex;gap:8px;align-items:center}
+.date-range input{background:#1A2035;border:1px solid var(--doctor-border);color:var(--doctor-text);border-radius:8px;padding:6px 10px;font-size:12px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:1fr 1fr}.charts-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app-layout">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏥</div>
+    <div class="logo-text"><span>医生工作站</span><small>中医失眠系统</small></div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span>工作台</span></a>
+    <a href="patients.html" class="nav-item"><span class="nav-icon">👥</span><span>患者管理</span></a>
+    <a href="cases.html" class="nav-item"><span class="nav-icon">📋</span><span>病例查阅</span></a>
+    <a href="statistics.html" class="nav-item active"><span class="nav-icon">📈</span><span>数据统计</span></a>
+    <a href="knowledge.html" class="nav-item"><span class="nav-icon">📚</span><span>知识库管理</span></a>
+    <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span><span>系统设置</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="../index.html" class="nav-item"><span class="nav-icon">🏡</span><span>返回首页</span></a>
+    <a href="#" class="nav-item" onclick="logoutUser()"><span class="nav-icon">🚪</span><span>退出登录</span></a>
+  </div>
+</aside>
+
+<main class="main-content">
+  <div class="page-header" style="justify-content:space-between">
+    <div>
+      <h1 class="page-title">数据统计</h1>
+      <p class="page-subtitle">患者群体趋势、证型分布与疗效分析</p>
+    </div>
+    <div class="date-range">
+      <input type="date" value="2024-04-01">
+      <span style="color:var(--doctor-muted)">至</span>
+      <input type="date" value="2024-05-09">
+      <button class="export-btn" onclick="showToast('报表导出中…','info')">📥 导出报表</button>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-grid">
+    <div class="kpi-card teal">
+      <div class="kpi-icon">👥</div>
+      <div class="kpi-num">248</div>
+      <div class="kpi-label">注册用户总数</div>
+      <div class="kpi-change kpi-up">↑ 12% 较上月</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-num">1,086</div>
+      <div class="kpi-label">AI评估总次数</div>
+      <div class="kpi-change kpi-up">↑ 18% 较上月</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-icon">😴</div>
+      <div class="kpi-num">67.4</div>
+      <div class="kpi-label">平均睡眠评分</div>
+      <div class="kpi-change kpi-up">↑ 3.2分 较上月</div>
+    </div>
+    <div class="kpi-card rose">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-num">82%</div>
+      <div class="kpi-label">方案依从率</div>
+      <div class="kpi-change kpi-down">↓ 2% 较上月</div>
+    </div>
+  </div>
+
+  <!-- 趋势图 & 证型分布 -->
+  <div class="charts-grid">
+    <div class="chart-card full">
+      <div class="chart-title">
+        月度评估量与睡眠评分趋势
+        <div class="tab-bar">
+          <div class="tab-pill active" onclick="switchTrend(this,'6m')">近6月</div>
+          <div class="tab-pill" onclick="switchTrend(this,'1y')">近1年</div>
+        </div>
+      </div>
+      <div class="trend-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#2A9D8F"></div>评估次数（×10）</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#E9C46A"></div>平均睡眠评分</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div>新增用户</div>
+      </div>
+      <canvas id="trendChart" height="80"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">证型分布<span>本月统计</span></div>
+      <canvas id="pieChart" height="200"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">证型评估量排行<span>累计</span></div>
+      <div class="syndrome-list" id="syndromeRank"></div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">年龄段分布<span>用户画像</span></div>
+      <canvas id="ageChart" height="160"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">性别比例<span>注册用户</span></div>
+      <canvas id="genderChart" height="160"></canvas>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card full">
+      <div class="chart-title">Top症状出现频率（本月TOP10）</div>
+      <canvas id="symptomChart" height="80"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-top:0">
+    <div class="chart-title">近期活跃患者（按评估次数）</div>
+    <table class="top-table">
+      <thead><tr><th>排名</th><th>患者姓名</th><th>评估次数</th><th>主证型</th><th>最近评分</th><th>坚持天数</th></tr></thead>
+      <tbody id="topPatients"></tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+// Auth guard
+window.addEventListener('DOMContentLoaded',()=>{
+  const u=getCurrentUser();
+  if(!u||u.role!=='doctor'){location.href='../login.html';}
+  drawAll();
+});
+
+const MONTHS_6=['11月','12月','1月','2月','3月','4月'];
+const ASSESS_6=[52,61,58,74,89,102];
+const SCORE_6=[62,63,64,65,66,67.4];
+const USERS_6=[18,22,20,28,35,42];
+const MONTHS_12=['5月','6月','7月','8月','9月','10月','11月','12月','1月','2月','3月','4月'];
+const ASSESS_12=[30,34,38,42,46,50,52,61,58,74,89,102];
+const SCORE_12=[58,59,60,60,61,62,62,63,64,65,66,67.4];
+const USERS_12=[8,10,11,12,13,15,18,22,20,28,35,42];
+let trendMode='6m';
+
+function drawAll(){
+  drawTrend(MONTHS_6,ASSESS_6,SCORE_6,USERS_6);
+  drawPie();
+  drawSyndromeRank();
+  drawAge();
+  drawGender();
+  drawSymptoms();
+  renderTopPatients();
+}
+function switchTrend(el,mode){
+  document.querySelectorAll('.tab-pill').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  trendMode=mode;
+  if(mode==='6m')drawTrend(MONTHS_6,ASSESS_6,SCORE_6,USERS_6);
+  else drawTrend(MONTHS_12,ASSESS_12,SCORE_12,USERS_12);
+}
+
+function drawTrend(labels,assess,scores,users){
+  const canvas=document.getElementById('trendChart');
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||700;canvas.height=160;
+  const W=canvas.width,H=canvas.height;
+  const pad={t:20,r:20,b:30,l:40};
+  ctx.clearRect(0,0,W,H);
+  const maxA=Math.max(...assess)*1.2,n=labels.length;
+  const xStep=(W-pad.l-pad.r)/(n-1);
+
+  // Grid lines
+  ctx.strokeStyle='rgba(42,157,143,.1)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pad.t+(H-pad.t-pad.b)*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();}
+
+  // X labels
+  ctx.fillStyle='#94A3B8';ctx.font='11px sans-serif';ctx.textAlign='center';
+  labels.forEach((l,i)=>{const x=pad.l+i*xStep;ctx.fillText(l,x,H-8);});
+
+  // Draw line helper
+  function drawLine(data,max,color,fill){
+    const pts=data.map((v,i)=>({x:pad.l+i*xStep,y:pad.t+(H-pad.t-pad.b)*(1-v/max)}));
+    if(fill){
+      ctx.beginPath();ctx.moveTo(pts[0].x,H-pad.b);
+      pts.forEach(p=>ctx.lineTo(p.x,p.y));
+      ctx.lineTo(pts[pts.length-1].x,H-pad.b);ctx.closePath();
+      ctx.fillStyle=color.replace('1)','0.08)');ctx.fill();
+    }
+    ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+    pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
+    ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
+    pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();});
+  }
+  drawLine(assess.map(v=>v/10),maxA/10,'rgba(42,157,143,1)',true);
+  drawLine(scores,100,'rgba(233,196,106,1)',false);
+  drawLine(users,maxA/10,'rgba(96,165,250,1)',false);
+}
+
+const SYNDROMES=[
+  {name:'心脾两虚',count:312,color:'#22c55e'},
+  {name:'肝火扰心',count:287,color:'#f97316'},
+  {name:'心肾不交',count:218,color:'#60a5fa'},
+  {name:'痰热扰心',count:164,color:'#a78bfa'},
+  {name:'心胆气虚',count:105,color:'#fb7185'},
+];
+function drawPie(){
+  const canvas=document.getElementById('pieChart');
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||300;canvas.height=200;
+  const W=canvas.width,H=canvas.height;
+  const cx=W/2-50,cy=H/2,r=Math.min(cx,cy)-20;
+  const total=SYNDROMES.reduce((a,s)=>a+s.count,0);
+  let angle=-Math.PI/2;
+  SYNDROMES.forEach(s=>{
+    const slice=2*Math.PI*s.count/total;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,angle,angle+slice);
+    ctx.closePath();ctx.fillStyle=s.color;ctx.fill();
+    ctx.strokeStyle='#0D1117';ctx.lineWidth=2;ctx.stroke();
+    angle+=slice;
+  });
+  // Hole
+  ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle='#111827';ctx.fill();
+  ctx.fillStyle='#E2E8F0';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
+  ctx.fillText(total,cx,cy);ctx.font='10px sans-serif';ctx.fillStyle='#94A3B8';ctx.fillText('总评估',cx,cy+14);
+  // Legend
+  const lx=W/2+10,ly=30;
+  SYNDROMES.forEach((s,i)=>{
+    ctx.fillStyle=s.color;ctx.fillRect(lx,ly+i*28,10,10);
+    ctx.fillStyle='#E2E8F0';ctx.font='12px sans-serif';ctx.textAlign='left';
+    ctx.fillText(s.name,lx+15,ly+i*28+10);
+    ctx.fillStyle='#94A3B8';ctx.font='11px sans-serif';
+    ctx.fillText(Math.round(s.count/total*100)+'%',lx+80,ly+i*28+10);
+  });
+}
+function drawSyndromeRank(){
+  const total=SYNDROMES.reduce((a,s)=>a+s.count,0);
+  const max=SYNDROMES[0].count;
+  document.getElementById('syndromeRank').innerHTML=SYNDROMES.map(s=>`
+    <div class="syndrome-row">
+      <div class="syn-name">${s.name}</div>
+      <div class="syn-track"><div class="syn-fill" style="width:${s.count/max*100}%;background:${s.color}"></div></div>
+      <div class="syn-pct">${Math.round(s.count/total*100)}%</div>
+      <div class="syn-count">${s.count}</div>
+    </div>
+  `).join('');
+}
+function drawAge(){
+  const canvas=document.getElementById('ageChart');
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||280;canvas.height=160;
+  const W=canvas.width,H=canvas.height;
+  const ages=['18-25','26-35','36-45','46-55','56+'];
+  const vals=[32,68,72,51,25];
+  const maxV=Math.max(...vals)*1.2;
+  const barW=(W-60)/(ages.length*2);
+  ctx.fillStyle='#1A2035';ctx.fillRect(0,0,W,H);
+  vals.forEach((v,i)=>{
+    const x=40+i*(W-60)/ages.length+barW/2;
+    const bh=(H-40)*v/maxV;
+    const y=H-20-bh;
+    const grad=ctx.createLinearGradient(0,y,0,H-20);
+    grad.addColorStop(0,'#2A9D8F');grad.addColorStop(1,'rgba(42,157,143,.2)');
+    ctx.fillStyle=grad;ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,barW,bh,4):ctx.rect(x,y,barW,bh);ctx.fill();
+    ctx.fillStyle='#94A3B8';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(ages[i],x+barW/2,H-6);
+    ctx.fillStyle='#E2E8F0';ctx.font='bold 11px sans-serif';
+    ctx.fillText(v,x+barW/2,y-4);
+  });
+}
+function drawGender(){
+  const canvas=document.getElementById('genderChart');
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||280;canvas.height=160;
+  const W=canvas.width,H=canvas.height;
+  const cx=W/2,cy=H/2,r=55;
+  const male=108,female=140;const total=male+female;
+  // Male arc
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,-Math.PI/2,(-Math.PI/2)+2*Math.PI*male/total);ctx.closePath();
+  ctx.fillStyle='#60a5fa';ctx.fill();
+  // Female arc
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,(-Math.PI/2)+2*Math.PI*male/total,-Math.PI/2);ctx.closePath();
+  ctx.fillStyle='#fb7185';ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle='#111827';ctx.fill();
+  ctx.fillStyle='#E2E8F0';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText('248',cx,cy+5);
+  // Labels
+  ctx.fillStyle='#60a5fa';ctx.font='12px sans-serif';ctx.textAlign='left';ctx.fillText('男 '+Math.round(male/total*100)+'%',20,H-30);
+  ctx.fillStyle='#fb7185';ctx.fillText('女 '+Math.round(female/total*100)+'%',20,H-12);
+}
+function drawSymptoms(){
+  const canvas=document.getElementById('symptomChart');
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||700;canvas.height=120;
+  const W=canvas.width,H=canvas.height;
+  const syms=['入睡困难','多梦','早醒','心悸','急躁易怒','神疲乏力','腰酸','口苦','心烦','头重'];
+  const vals=[312,287,256,198,187,163,142,128,115,98];
+  const maxV=vals[0]*1.1;
+  const bw=(W-60)/syms.length*0.6;
+  const gap=(W-60)/syms.length;
+  syms.forEach((s,i)=>{
+    const x=40+i*gap+(gap-bw)/2;
+    const bh=(H-40)*vals[i]/maxV;
+    const y=H-20-bh;
+    const grad=ctx.createLinearGradient(0,y,0,H-20);
+    grad.addColorStop(0,i<3?'#E9C46A':'#2A9D8F');
+    grad.addColorStop(1,'rgba(42,157,143,.15)');
+    ctx.fillStyle=grad;ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,bw,bh,3):ctx.rect(x,y,bw,bh);ctx.fill();
+    ctx.fillStyle='#94A3B8';ctx.font='9px sans-serif';ctx.textAlign='center';ctx.fillText(s,x+bw/2,H-4);
+    ctx.fillStyle='#E2E8F0';ctx.font='bold 10px sans-serif';ctx.fillText(vals[i],x+bw/2,y-3);
+  });
+}
+function renderTopPatients(){
+  const top=[
+    {name:'李晓明',n:12,syndrome:'心脾两虚',score:68,days:28},
+    {name:'王芳',n:10,syndrome:'肝火扰心',score:55,days:22},
+    {name:'张伟',n:9,syndrome:'心肾不交',score:60,days:18},
+    {name:'刘婷',n:8,syndrome:'痰热扰心',score:58,days:15},
+    {name:'陈建国',n:7,syndrome:'心胆气虚',score:65,days:14},
+  ];
+  document.getElementById('topPatients').innerHTML=top.map((p,i)=>`
+    <tr>
+      <td><span class="rank-num${i<3?' gold-rank':''}">${i+1}</span></td>
+      <td style="font-weight:600">${p.name}</td>
+      <td style="color:var(--doctor-primary);font-weight:700">${p.n}次</td>
+      <td>${p.syndrome}</td>
+      <td style="color:${p.score>=70?'#22c55e':p.score>=55?'#f59e0b':'#ef4444'};font-weight:700">${p.score}</td>
+      <td style="color:var(--doctor-muted)">${p.days}天</td>
+    </tr>
+  `).join('');
+}
+</script>
+</body>
+</html>
