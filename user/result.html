@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>辨证结果 · 安眠智道</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #F0EDF8; }
+
+/* 结果横幅 */
+.result-banner {
+  background: linear-gradient(135deg, #1A0A3E 0%, #2A1060 40%, #0A3A3A 100%);
+  border-radius: 20px; padding: 40px; margin-bottom: 28px;
+  position: relative; overflow: hidden;
+}
+
+.result-banner::after {
+  content: '☯'; position: absolute;
+  right: 40px; top: 50%; transform: translateY(-50%);
+  font-size: 100px; opacity: 0.06; color: #C9A227;
+}
+
+.result-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(201,162,39,0.15); border: 1px solid rgba(201,162,39,0.3);
+  color: var(--secondary-light); padding: 6px 16px;
+  border-radius: 20px; font-size: 13px; font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.result-syndrome-name {
+  font-size: 36px; font-weight: 900; color: #fff;
+  margin-bottom: 8px;
+  animation: fadeInDown 0.6s ease both;
+}
+
+.result-syndrome-type {
+  font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 24px;
+}
+
+.result-mechanism {
+  display: inline-block;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 12px 20px;
+  font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.7;
+}
+
+/* 评分卡片 */
+.score-cards {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 16px; margin-bottom: 28px;
+}
+
+.score-card {
+  background: #fff; border-radius: 14px;
+  padding: 20px 16px; text-align: center;
+  border: 1px solid rgba(107,79,160,0.1);
+  position: relative; overflow: hidden;
+  transition: var(--transition);
+}
+
+.score-card.top-score {
+  border-color: var(--secondary);
+  background: linear-gradient(145deg, #fff9e8, #fffdf5);
+}
+
+.score-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(107,79,160,0.1); }
+
+.score-syndrome { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+
+.score-ring {
+  width: 72px; height: 72px; margin: 0 auto 12px;
+  position: relative;
+}
+
+.score-ring svg { transform: rotate(-90deg); }
+
+.score-num {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px; font-weight: 900; color: var(--text-primary);
+}
+
+.score-card.top-score .score-num { color: var(--secondary); }
+
+.score-label { font-size: 12px; color: var(--text-light); }
+
+/* 辨证依据 */
+.evidence-section {
+  background: #fff; border-radius: 20px;
+  border: 1px solid rgba(107,79,160,0.1);
+  margin-bottom: 24px; overflow: hidden;
+}
+
+.evidence-header {
+  padding: 20px 28px 16px;
+  border-bottom: 1px solid rgba(107,79,160,0.06);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.evidence-header h3 { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+
+.evidence-body { padding: 24px 28px; }
+
+.evidence-item {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 14px 0; border-bottom: 1px solid rgba(107,79,160,0.04);
+}
+
+.evidence-item:last-child { border-bottom: none; }
+
+.evidence-weight {
+  font-size: 13px; font-weight: 700;
+  padding: 4px 10px; border-radius: 8px; flex-shrink: 0;
+}
+
+.w-high { background: rgba(231,111,81,0.1); color: var(--danger); }
+.w-mid { background: rgba(201,162,39,0.1); color: var(--secondary); }
+.w-low { background: rgba(107,79,160,0.08); color: var(--primary); }
+
+.evidence-text { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+.evidence-text strong { color: var(--text-primary); }
+
+/* 操作按钮区 */
+.action-row {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.action-btn {
+  flex: 1; min-width: 180px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 16px 24px; border-radius: 12px;
+  font-size: 15px; font-weight: 700;
+  transition: var(--transition); cursor: pointer; border: none;
+  font-family: inherit;
+}
+
+.ab-primary { background: var(--purple-gradient); color: #fff; }
+.ab-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(107,79,160,0.35); }
+
+.ab-gold { background: var(--gold-gradient); color: #1A1A2E; }
+.ab-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,162,39,0.35); }
+
+.ab-outline { background: #fff; border: 1.5px solid rgba(107,79,160,0.2) !important; color: var(--primary); }
+.ab-outline:hover { background: rgba(107,79,160,0.04); }
+
+/* 不明确提示 */
+.unclear-box {
+  background: rgba(201,162,39,0.05); border: 1px solid rgba(201,162,39,0.2);
+  border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 28px;
+}
+
+.unclear-box h3 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+.unclear-box p { font-size: 14px; color: var(--text-secondary); line-height: 1.8; }
+
+@media (max-width: 1024px) {
+  .score-cards { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .score-cards { grid-template-columns: repeat(2, 1fr); }
+  .result-syndrome-name { font-size: 28px; }
+  .evidence-body { padding: 16px; }
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="dashboard.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+        <div class="brand-icon">☯</div>
+        <div class="brand-text">
+          <span class="brand-name">安眠智道</span>
+          <span class="brand-sub">辨证结果</span>
+        </div>
+      </a>
+    </div>
+    <div class="nav-actions">
+      <a href="dashboard.html" class="btn-login">← 返回主页</a>
+      <button class="btn-register" onclick="logoutUser()">退出</button>
+    </div>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user" id="sidebarUser">
+      <div class="sidebar-avatar" id="sidebarAvatar">用</div>
+      <div class="sidebar-username" id="sidebarName">加载中...</div>
+      <span class="sidebar-role">普通用户</span>
+    </div>
+    <p class="sidebar-section-title">功能菜单</p>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏠 我的主页</a>
+      <a href="assessment.html">🔍 开始辨证</a>
+      <a href="records.html">📋 辨证记录</a>
+      <a href="plan.html" class="active">🌿 调养方案</a>
+      <a href="trend.html">📊 症状趋势</a>
+    </nav>
+  </aside>
+
+  <main class="main-content" id="mainContent">
+    <div id="resultContainer">
+      <!-- 动态生成 -->
+    </div>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+const syndromeInfo = {
+  '肝火扰心': {
+    icon: '🔥', mechanism: '肝火上炎，扰动心神，神志不安，是实火证型，多因长期情志不畅、郁怒化火所致',
+    evidence: [
+      { text: '急躁易怒、头晕头胀、目赤耳鸣', weight: '主症', level: 'high' },
+      { text: '口干口苦、便秘溲赤', weight: '次症', level: 'mid' },
+      { text: '舌红苔黄、脉弦数', weight: '关键舌脉', level: 'high' },
+    ],
+    treatment: '疏肝泻火，镇心安神',
+    formula: '龙胆泻肝汤加减',
+    color: '#E74C3C'
+  },
+  '痰热扰心': {
+    icon: '🌫️', mechanism: '痰热互结，上扰心神，多由饮食不节、痰湿化热所致',
+    evidence: [
+      { text: '不寐心烦、多梦纷纭', weight: '主症', level: 'high' },
+      { text: '胸脘痞闷、恶食嗳气、口苦呕恶', weight: '次症', level: 'mid' },
+      { text: '舌红苔黄腻、脉滑数', weight: '关键舌脉', level: 'high' },
+    ],
+    treatment: '清化痰热，和中安神',
+    formula: '温胆汤合黄连温胆汤加减',
+    color: '#F39C12'
+  },
+  '心脾两虚': {
+    icon: '💛', mechanism: '心脾气血不足，神失所养，多因思虑劳倦伤脾，脾虚化源不足，心失血养所致',
+    evidence: [
+      { text: '不易入睡、多梦易醒、心悸健忘', weight: '主症', level: 'high' },
+      { text: '神疲乏力、食少腹胀、面色少华', weight: '次症', level: 'mid' },
+      { text: '舌淡苔白、脉细弱', weight: '关键舌脉', level: 'high' },
+    ],
+    treatment: '补养心脾，养血安神',
+    formula: '归脾汤加减',
+    color: '#27AE60'
+  },
+  '心肾不交': {
+    icon: '🌊', mechanism: '肾阴不足，不能上济心火，心火偏亢，水火不济，阴虚火旺扰动心神',
+    evidence: [
+      { text: '心烦不寐、入睡困难、五心烦热', weight: '主症', level: 'high' },
+      { text: '腰膝酸软、潮热盗汗、耳鸣健忘', weight: '次症', level: 'mid' },
+      { text: '舌红少苔、脉细数', weight: '关键舌脉', level: 'high' },
+    ],
+    treatment: '滋阴降火，交通心肾',
+    formula: '六味地黄丸合交泰丸加减',
+    color: '#2980B9'
+  },
+  '心胆气虚': {
+    icon: '🌙', mechanism: '心胆虚怯，决断无权，神志不宁，多因素体胆小或受突然惊吓后发病',
+    evidence: [
+      { text: '虚烦不寐、多梦易醒、触事易惊', weight: '主症', level: 'high' },
+      { text: '心悸胆怯、善太息、气短自汗', weight: '次症', level: 'mid' },
+      { text: '舌淡、脉弦细', weight: '关键舌脉', level: 'high' },
+    ],
+    treatment: '益气镇惊，安神定志',
+    formula: '安神定志丸合酸枣仁汤加减',
+    color: '#9B59B6'
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!checkAuth()) return;
+  const user = getCurrentUser();
+  if (user) {
+    document.getElementById('sidebarAvatar').textContent = user.name.charAt(0);
+    document.getElementById('sidebarName').textContent = user.name;
+  }
+
+  const record = JSON.parse(localStorage.getItem('latestRecord'));
+  if (!record) {
+    document.getElementById('resultContainer').innerHTML = `
+      <div class="unclear-box">
+        <h3>未找到辨证记录</h3>
+        <p>请先完成症状录入，再查看辨证结果。</p>
+        <a href="assessment.html" class="action-btn ab-gold" style="display:inline-flex;margin-top:16px">开始辨证 →</a>
+      </div>`;
+    return;
+  }
+
+  renderResult(record.result, record);
+});
+
+function renderResult(result, record) {
+  const container = document.getElementById('resultContainer');
+
+  if (result.type === 'unclear') {
+    container.innerHTML = `
+      <div class="unclear-box">
+        <div style="font-size:48px;margin-bottom:16px">🤔</div>
+        <h3>症状特征不典型，无法明确辨证</h3>
+        <p>您所填写的症状信息不够典型，系统无法给出明确的证型判定。<br>
+        这可能说明您的失眠症状较轻或较为复杂，<strong>建议及时咨询专业中医师进行临床诊疗</strong>。</p>
+      </div>
+      <div class="action-row">
+        <a href="assessment.html" class="action-btn ab-outline">重新辨证</a>
+        <a href="dashboard.html" class="action-btn ab-primary">返回主页</a>
+      </div>`;
+    return;
+  }
+
+  const mainSyndrome = result.syndrome1;
+  const info = syndromeInfo[mainSyndrome] || {};
+  const isMixed = result.type === 'mixed';
+  const mainScore = result.scores[mainSyndrome] || 0;
+
+  // 评分卡片
+  const scoreHTML = result.sorted.map(([name, score]) => {
+    const isTop = name === mainSyndrome;
+    const r = 28; const circ = 2 * Math.PI * r;
+    const dash = circ * score / 100;
+    const info2 = syndromeInfo[name] || {};
+    return `
+      <div class="score-card ${isTop ? 'top-score' : ''}">
+        <div class="score-syndrome">${info2.icon || '🌙'} ${name}</div>
+        <div class="score-ring">
+          <svg viewBox="0 0 64 64" width="72" height="72">
+            <circle cx="32" cy="32" r="${r}" fill="none" stroke="#f0f0f0" stroke-width="5"/>
+            <circle cx="32" cy="32" r="${r}" fill="none" stroke="${info2.color || '#6B4FA0'}" stroke-width="5"
+              stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"/>
+          </svg>
+          <div class="score-num">${score}</div>
+        </div>
+        <div class="score-label">${isTop ? (isMixed ? '主证' : '确诊') : '参考'}</div>
+      </div>`;
+  }).join('');
+
+  // 辨证依据
+  const evidenceHTML = (info.evidence || []).map(e => `
+    <div class="evidence-item">
+      <span class="evidence-weight w-${e.level}">${e.weight}</span>
+      <div class="evidence-text"><strong>${e.text}</strong> — 符合${mainSyndrome}证型表现</div>
+    </div>`).join('');
+
+  container.innerHTML = `
+    <!-- 结果横幅 -->
+    <div class="result-banner">
+      <div class="result-badge">🤖 AI辨证结果 · ${record.time || '刚刚'}</div>
+      <div class="result-syndrome-name">
+        ${info.icon || '🌙'} ${mainSyndrome}证
+        ${isMixed ? ` <span style="font-size:20px;opacity:0.7">（兼 ${result.syndrome2}证）</span>` : ''}
+      </div>
+      <div class="result-syndrome-type">
+        ${isMixed ? '兼夹证型 · 主证：' + mainSyndrome + ' / 次证：' + result.syndrome2 : '单一证型 · 匹配度 ' + mainScore + '%'}
+      </div>
+      <div class="result-mechanism">
+        <strong>病机：</strong>${info.mechanism || '暂无说明'}
+      </div>
+    </div>
+
+    <!-- 各证型得分 -->
+    <h3 style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:16px">各证型评分对比</h3>
+    <div class="score-cards">${scoreHTML}</div>
+
+    <!-- 操作按钮 -->
+    <div class="action-row">
+      <a href="plan.html" class="action-btn ab-gold" style="text-decoration:none">🌿 查看调养方案</a>
+      <a href="assessment.html" class="action-btn ab-outline" style="text-decoration:none;border:1.5px solid rgba(107,79,160,0.2)">🔄 重新辨证</a>
+      <a href="records.html" class="action-btn ab-primary" style="text-decoration:none">📋 辨证记录</a>
+    </div>
+
+    <!-- 辨证依据 -->
+    <div class="evidence-section">
+      <div class="evidence-header">
+        <h3>辨证依据 · ${mainSyndrome}证</h3>
+        <span class="badge badge-purple">权威教材标准</span>
+      </div>
+      <div class="evidence-body">
+        ${evidenceHTML}
+        <div style="margin-top:20px; padding:16px 20px; background:rgba(107,79,160,0.04); border-radius:10px">
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.7">
+            <strong style="color:var(--primary)">参考治法：</strong>${info.treatment || '--'}<br>
+            <strong style="color:var(--primary)">基础参考方药：</strong>${info.formula || '--'}
+            <span style="font-size:12px;color:var(--danger);margin-left:8px">（⚠️ 仅供参考，不可自行配药服用，请在专业中医师指导下用药）</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 医学声明 -->
+    <div class="disclaimer-box" style="margin-top:0">
+      <span class="disclaimer-icon">⚕️</span>
+      <p>本辨证结果基于您所填写的症状，由AI规则推理引擎自动分析，<strong>仅供居家调养参考，不构成临床诊断</strong>，绝不替代专业中医师的临床辨证与诊疗。如有疑问或症状严重，请及时就医。</p>
+    </div>`;
+
+  // 绘制评分圆环（延迟动画）
+  setTimeout(() => animateScores(result.sorted), 100);
+}
+
+function animateScores(sorted) {
+  sorted.forEach(([name, score], i) => {
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.score-ring svg circle:last-child');
+      // 已经在HTML中直接设置，无需额外动画
+    }, i * 100);
+  });
+}
+</script>
+</body>
+</html>
