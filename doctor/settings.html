@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>系统设置 - 医生端</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+:root{--doctor-primary:#2A9D8F;--doctor-secondary:#E9C46A;--doctor-dark:#0A0A1A;--doctor-card:#111827;--doctor-border:rgba(42,157,143,.2);--doctor-text:#E2E8F0;--doctor-muted:#94A3B8}
+body{background:var(--doctor-dark);color:var(--doctor-text)}
+.sidebar{background:#0D1117;border-right:1px solid var(--doctor-border)}
+.sidebar-logo .logo-icon{background:linear-gradient(135deg,#2A9D8F,#26756C)}
+.nav-item{color:var(--doctor-muted)}
+.nav-item:hover,.nav-item.active{background:rgba(42,157,143,.12);color:var(--doctor-primary)}
+.main-content{background:var(--doctor-dark)}
+.page-title{color:var(--doctor-text)}
+.page-subtitle{color:var(--doctor-muted)}
+
+.settings-layout{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start}
+.settings-nav{background:var(--doctor-card);border:1px solid var(--doctor-border);border-radius:14px;padding:12px;position:sticky;top:80px}
+.settings-nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:var(--doctor-muted);font-size:13px;transition:.2s}
+.settings-nav-item:hover,.settings-nav-item.active{background:rgba(42,157,143,.12);color:var(--doctor-primary)}
+.settings-nav-item .sn-icon{font-size:16px}
+
+.settings-section{display:none}
+.settings-section.active{display:block}
+.settings-card{background:var(--doctor-card);border:1px solid var(--doctor-border);border-radius:14px;padding:24px;margin-bottom:20px}
+.settings-card-title{font-size:15px;font-weight:700;color:var(--doctor-text);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--doctor-border)}
+.row-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(42,157,143,.07)}
+.row-item:last-child{border:none;padding-bottom:0}
+.row-label{font-size:13px;color:var(--doctor-text)}
+.row-desc{font-size:11px;color:var(--doctor-muted);margin-top:3px}
+
+/* Toggle switch */
+.toggle{position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#1A2035;border-radius:24px;transition:.3s;border:1px solid var(--doctor-border)}
+.toggle-slider::before{content:'';position:absolute;left:3px;top:50%;transform:translateY(-50%);width:16px;height:16px;border-radius:50%;background:var(--doctor-muted);transition:.3s}
+.toggle input:checked+.toggle-slider{background:var(--doctor-primary);border-color:var(--doctor-primary)}
+.toggle input:checked+.toggle-slider::before{left:23px;background:#fff}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:12px;color:var(--doctor-muted)}
+.form-group input,.form-group select,.form-group textarea{background:#1A2035;border:1px solid var(--doctor-border);color:var(--doctor-text);border-radius:8px;padding:9px 12px;font-size:13px;transition:.2s}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--doctor-primary)}
+.form-group input[readonly]{opacity:.55}
+.form-group textarea{resize:vertical;min-height:70px}
+
+.save-btn{background:linear-gradient(135deg,#2A9D8F,#1a7a6e);color:#fff;border:none;padding:9px 22px;border-radius:8px;font-size:13px;cursor:pointer;transition:.2s}
+.save-btn:hover{opacity:.9}
+.cancel-btn{background:rgba(42,157,143,.1);color:var(--doctor-muted);border:1px solid var(--doctor-border);padding:9px 16px;border-radius:8px;font-size:13px;cursor:pointer}
+
+.badge-active{background:rgba(34,197,94,.12);color:#22c55e;padding:3px 10px;border-radius:20px;font-size:11px}
+.badge-inactive{background:rgba(107,114,128,.12);color:#6b7280;padding:3px 10px;border-radius:20px;font-size:11px}
+
+.avatar-section{display:flex;align-items:center;gap:20px;margin-bottom:24px}
+.doc-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#2A9D8F,#1a7a6e);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;border:3px solid var(--doctor-primary)}
+.avatar-meta{flex:1}
+.avatar-meta h3{color:var(--doctor-text);font-size:16px;margin:0 0 4px}
+.avatar-meta p{color:var(--doctor-muted);font-size:12px;margin:0 0 10px}
+.change-avatar-btn{background:rgba(42,157,143,.1);color:var(--doctor-primary);border:1px solid var(--doctor-border);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer}
+
+.danger-zone{border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px}
+.danger-zone h4{color:#ef4444;margin:0 0 8px;font-size:14px}
+.danger-zone p{color:var(--doctor-muted);font-size:12px;margin:0 0 12px}
+.danger-btn{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer}
+
+.sys-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sys-info-item{background:#1A2035;border-radius:8px;padding:12px}
+.sys-info-label{font-size:11px;color:var(--doctor-muted);margin-bottom:4px}
+.sys-info-value{font-size:13px;color:var(--doctor-text);font-weight:500}
+
+@media(max-width:900px){.settings-layout{grid-template-columns:1fr}.settings-nav{position:static}.form-row{grid-template-columns:1fr}.sys-info-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app-layout">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏥</div>
+    <div class="logo-text"><span>医生工作站</span><small>中医失眠系统</small></div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span>工作台</span></a>
+    <a href="patients.html" class="nav-item"><span class="nav-icon">👥</span><span>患者管理</span></a>
+    <a href="cases.html" class="nav-item"><span class="nav-icon">📋</span><span>病例查阅</span></a>
+    <a href="statistics.html" class="nav-item"><span class="nav-icon">📈</span><span>数据统计</span></a>
+    <a href="knowledge.html" class="nav-item"><span class="nav-icon">📚</span><span>知识库管理</span></a>
+    <a href="settings.html" class="nav-item active"><span class="nav-icon">⚙️</span><span>系统设置</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="../index.html" class="nav-item"><span class="nav-icon">🏡</span><span>返回首页</span></a>
+    <a href="#" class="nav-item" onclick="logoutUser()"><span class="nav-icon">🚪</span><span>退出登录</span></a>
+  </div>
+</aside>
+
+<main class="main-content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">系统设置</h1>
+      <p class="page-subtitle">管理医生账号信息、通知偏好和系统参数</p>
+    </div>
+  </div>
+
+  <div class="settings-layout">
+    <!-- 左侧导航 -->
+    <div class="settings-nav">
+      <div class="settings-nav-item active" onclick="showSection('profile',this)"><span class="sn-icon">👤</span>个人资料</div>
+      <div class="settings-nav-item" onclick="showSection('security',this)"><span class="sn-icon">🔒</span>账号安全</div>
+      <div class="settings-nav-item" onclick="showSection('notify',this)"><span class="sn-icon">🔔</span>通知设置</div>
+      <div class="settings-nav-item" onclick="showSection('diagnosis',this)"><span class="sn-icon">🤖</span>AI辨证配置</div>
+      <div class="settings-nav-item" onclick="showSection('system',this)"><span class="sn-icon">🖥️</span>系统信息</div>
+    </div>
+
+    <!-- 右侧内容 -->
+    <div>
+      <!-- 个人资料 -->
+      <div class="settings-section active" id="section-profile">
+        <div class="settings-card">
+          <div class="settings-card-title">👤 医生档案</div>
+          <div class="avatar-section">
+            <div class="doc-avatar" id="docAvatar">张</div>
+            <div class="avatar-meta">
+              <h3 id="docNameDisplay">张仲景医生</h3>
+              <p id="docTitleDisplay">主任医师 · 北京中医药大学附属医院 · 中医内科</p>
+              <button class="change-avatar-btn" onclick="showToast('头像修改功能开发中','info')">更换头像</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>真实姓名</label><input id="setName" type="text" value="张仲景"></div>
+            <div class="form-group"><label>职称</label>
+              <select id="setTitle">
+                <option>住院医师</option><option>主治医师</option><option selected>主任医师</option><option>副主任医师</option><option>教授</option>
+              </select>
+            </div>
+            <div class="form-group"><label>所在科室</label><input id="setDept" type="text" value="中医内科"></div>
+            <div class="form-group"><label>所在医院</label><input id="setHospital" type="text" value="北京中医药大学附属医院"></div>
+            <div class="form-group"><label>手机号</label><input type="text" value="137****7000" readonly></div>
+            <div class="form-group"><label>执业证书号</label><input type="text" id="setLicense" value="110100XXXXX2024001"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label>擅长领域</label>
+            <textarea id="setExpertise">中医内科，擅长失眠、焦虑、抑郁等神志病的辨证调养，熟练运用经方治疗顽固性失眠。</textarea>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="save-btn" onclick="saveProfile()">保存修改</button>
+            <button class="cancel-btn" onclick="showToast('已取消修改','info')">取消</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 账号安全 -->
+      <div class="settings-section" id="section-security">
+        <div class="settings-card">
+          <div class="settings-card-title">🔒 账号安全</div>
+          <div class="row-item">
+            <div><div class="row-label">登录手机号</div><div class="row-desc">137****7000，用于账号登录与验证</div></div>
+            <span class="badge-active">已验证</span>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">登录密码</div><div class="row-desc">建议定期修改密码以保护账号安全</div></div>
+            <button class="cancel-btn" onclick="togglePwdBox()">修改密码</button>
+          </div>
+          <div id="pwdBox" style="display:none;padding:16px 0">
+            <div class="form-row">
+              <div class="form-group"><label>当前密码</label><input type="password" id="s_oldPwd" placeholder="当前密码"></div>
+              <div class="form-group"><label>新密码</label><input type="password" id="s_newPwd" placeholder="至少6位字符"></div>
+              <div class="form-group"><label>确认新密码</label><input type="password" id="s_confirmPwd" placeholder="再次输入新密码"></div>
+            </div>
+            <button class="save-btn" onclick="changeDocPwd()">确认修改</button>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">双因素认证</div><div class="row-desc">登录时需要额外验证码确认身份</div></div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">登录记录</div><div class="row-desc">最近登录：2024-05-09 09:32 · 北京市 · Chrome</div></div>
+            <button class="cancel-btn" onclick="showToast('功能开发中','info')">查看全部</button>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title">⚠️ 危险操作</div>
+          <div class="danger-zone">
+            <h4>注销账号</h4>
+            <p>注销后所有数据将被永久删除，操作不可逆。如需注销，请联系系统管理员。</p>
+            <button class="danger-btn" onclick="showToast('请联系管理员申请账号注销','warning')">申请注销</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通知设置 -->
+      <div class="settings-section" id="section-notify">
+        <div class="settings-card">
+          <div class="settings-card-title">🔔 消息通知</div>
+          <div id="notifyItems"></div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title">📅 提醒时间设置</div>
+          <div class="row-item">
+            <div><div class="row-label">工作日提醒时间</div><div class="row-desc">工作日的患者随访提醒时间</div></div>
+            <input type="time" value="09:00" style="background:#1A2035;border:1px solid var(--doctor-border);color:var(--doctor-text);border-radius:8px;padding:6px 10px;font-size:13px">
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">每日数据汇总</div><div class="row-desc">每日发送今日评估统计摘要</div></div>
+            <input type="time" value="18:30" style="background:#1A2035;border:1px solid var(--doctor-border);color:var(--doctor-text);border-radius:8px;padding:6px 10px;font-size:13px">
+          </div>
+          <div style="margin-top:16px">
+            <button class="save-btn" onclick="showToast('通知设置已保存','success')">保存设置</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI辨证配置 -->
+      <div class="settings-section" id="section-diagnosis">
+        <div class="settings-card">
+          <div class="settings-card-title">🤖 AI辨证引擎参数</div>
+          <div class="row-item">
+            <div><div class="row-label">混合证型检测</div><div class="row-desc">当前两证型得分差≤15%时，识别为混合证型</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">单证型确认阈值</div><div class="row-desc">证型得分超过该值且领先≥20%，判定为单证型</div></div>
+            <input type="number" value="70" min="50" max="90" style="width:70px;background:#1A2035;border:1px solid var(--doctor-border);color:var(--doctor-text);border-radius:6px;padding:6px 10px;font-size:13px">
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">舌象权重加成</div><div class="row-desc">舌脉象症状的评分权重倍率（1.0=标准）</div></div>
+            <select style="background:#1A2035;border:1px solid var(--doctor-border);color:var(--doctor-text);border-radius:6px;padding:6px 10px;font-size:13px">
+              <option>1.0×（标准）</option><option selected>1.2×（加强）</option><option>1.5×（高权重）</option>
+            </select>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">结果解释详细度</div><div class="row-desc">控制AI返回的证型解释文字长度</div></div>
+            <select style="background:#1A2035;border:1px solid var(--doctor-border);color:var(--doctor-text);border-radius:6px;padding:6px 10px;font-size:13px">
+              <option>简洁</option><option selected>标准</option><option>详细</option>
+            </select>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">最近更新时间</div><div class="row-desc">辨证规则库版本 V1.2.3</div></div>
+            <span style="font-size:12px;color:var(--doctor-muted)">2024-04-15</span>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:10px">
+            <button class="save-btn" onclick="showToast('AI参数配置已保存','success')">保存配置</button>
+            <button class="cancel-btn" onclick="showToast('已重置为默认参数','info')">重置默认</button>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title">📋 调养方案推荐设置</div>
+          <div class="row-item">
+            <div><div class="row-label">推荐处方自动生成</div><div class="row-desc">辨证完成后自动推送参考方药</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">饮食建议个性化</div><div class="row-desc">根据用户年龄、性别优化饮食推荐</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">方案周期长度</div><div class="row-desc">默认调养方案建议周期</div></div>
+            <select style="background:#1A2035;border:1px solid var(--doctor-border);color:var(--doctor-text);border-radius:6px;padding:6px 10px;font-size:13px">
+              <option>1周</option><option selected>2周</option><option>4周</option><option>8周</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 系统信息 -->
+      <div class="settings-section" id="section-system">
+        <div class="settings-card">
+          <div class="settings-card-title">🖥️ 系统信息</div>
+          <div class="sys-info-grid">
+            <div class="sys-info-item"><div class="sys-info-label">系统名称</div><div class="sys-info-value">中医原发性失眠智能辅助调养系统</div></div>
+            <div class="sys-info-item"><div class="sys-info-label">系统版本</div><div class="sys-info-value">v2.4.1 (2024-05-01)</div></div>
+            <div class="sys-info-item"><div class="sys-info-label">AI引擎版本</div><div class="sys-info-value">TCM-Engine v1.2.3</div></div>
+            <div class="sys-info-item"><div class="sys-info-label">知识库版本</div><div class="sys-info-value">KB-2024Q1.2 (已是最新)</div></div>
+            <div class="sys-info-item"><div class="sys-info-label">技术标准</div><div class="sys-info-value">《中医内科学》十四五规划教材</div></div>
+            <div class="sys-info-item"><div class="sys-info-label">参考指南</div><div class="sys-info-value">《中医睡眠疾病诊疗指南》(2022)</div></div>
+            <div class="sys-info-item"><div class="sys-info-label">服务状态</div><div class="sys-info-value"><span class="badge-active">运行正常</span></div></div>
+            <div class="sys-info-item"><div class="sys-info-label">运行时间</div><div class="sys-info-value">128天 14小时</div></div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title">📊 数据存储</div>
+          <div class="row-item">
+            <div><div class="row-label">用户数据</div><div class="row-desc">2,486 条评估记录 · 248 名用户</div></div>
+            <div style="font-size:12px;color:var(--doctor-primary)">12.4 MB</div>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">知识库数据</div><div class="row-desc">5种证型规则 · 216条症状权重</div></div>
+            <div style="font-size:12px;color:var(--doctor-primary)">0.8 MB</div>
+          </div>
+          <div class="row-item">
+            <div><div class="row-label">数据备份</div><div class="row-desc">最近备份：2024-05-09 03:00</div></div>
+            <button class="cancel-btn" onclick="showToast('备份中…','info')">立即备份</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+// Auth guard
+window.addEventListener('DOMContentLoaded',()=>{
+  const u=getCurrentUser();
+  if(!u||u.role!=='doctor'){location.href='../login.html';return;}
+  if(u.name){
+    document.getElementById('docNameDisplay').textContent=u.name;
+    document.getElementById('docAvatar').textContent=u.name[0];
+    document.getElementById('docTitleDisplay').textContent=(u.title||'主任医师')+' · '+(u.hospital||'')+(u.dept?' · '+u.dept:'');
+    document.getElementById('setName').value=u.name;
+    if(u.title)document.getElementById('setTitle').value=u.title;
+    if(u.dept)document.getElementById('setDept').value=u.dept;
+    if(u.hospital)document.getElementById('setHospital').value=u.hospital;
+  }
+  renderNotify();
+});
+
+function showSection(id,el){
+  document.querySelectorAll('.settings-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.settings-nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  el.classList.add('active');
+}
+function saveProfile(){
+  const name=document.getElementById('setName').value;
+  if(name){document.getElementById('docNameDisplay').textContent=name;document.getElementById('docAvatar').textContent=name[0];}
+  const title=document.getElementById('setTitle').value;
+  const dept=document.getElementById('setDept').value;
+  const hospital=document.getElementById('setHospital').value;
+  document.getElementById('docTitleDisplay').textContent=title+' · '+hospital+' · '+dept;
+  showToast('个人资料已保存','success');
+}
+function togglePwdBox(){
+  const b=document.getElementById('pwdBox');
+  b.style.display=b.style.display==='none'?'block':'none';
+}
+function changeDocPwd(){
+  const o=document.getElementById('s_oldPwd').value;
+  const n=document.getElementById('s_newPwd').value;
+  const c=document.getElementById('s_confirmPwd').value;
+  if(!o||!n||!c){showToast('请填写完整密码信息','warning');return;}
+  if(n!==c){showToast('两次密码不一致','error');return;}
+  if(n.length<6){showToast('密码至少6位','warning');return;}
+  showToast('密码修改成功','success');
+  document.getElementById('pwdBox').style.display='none';
+}
+
+const notifyItems=[
+  {key:'newPatient',label:'新患者注册通知',desc:'有新用户注册时发送提醒',def:true},
+  {key:'highRisk',label:'高风险患者预警',desc:'睡眠评分骤降时立即通知',def:true},
+  {key:'dailySummary',label:'每日评估汇总',desc:'每日18:30推送今日统计数据',def:true},
+  {key:'weeklyReport',label:'周报推送',desc:'每周一发送上周数据分析报告',def:false},
+  {key:'sysUpdate',label:'系统更新通知',desc:'知识库或AI引擎更新时通知',def:true},
+  {key:'feedback',label:'患者反馈提醒',desc:'患者对方案进行反馈时通知',def:false},
+];
+function renderNotify(){
+  document.getElementById('notifyItems').innerHTML=notifyItems.map(c=>{
+    const saved=localStorage.getItem('doc_notify_'+c.key);
+    const on=saved===null?c.def:(saved==='1');
+    return`<div class="row-item">
+      <div><div class="row-label">${c.label}</div><div class="row-desc">${c.desc}</div></div>
+      <label class="toggle"><input type="checkbox" ${on?'checked':''} onchange="saveDocNotify('${c.key}',this.checked)"><span class="toggle-slider"></span></label>
+    </div>`;
+  }).join('');
+}
+function saveDocNotify(key,v){
+  localStorage.setItem('doc_notify_'+key,v?'1':'0');
+  showToast('设置已保存','success');
+}
+</script>
+</body>
+</html>
