@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>患者管理 · 安眠智道</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #0A0A1A; }
+
+.page-header { margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; }
+.page-header h1 { font-size: 24px; font-weight: 800; color: rgba(255,255,255,0.9); }
+.page-header p { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+/* 顶部统计 */
+.top-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+
+.top-stat {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 20px;
+}
+
+.top-stat-num { font-size: 32px; font-weight: 900; color: rgba(255,255,255,0.9); }
+.top-stat-label { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 6px; }
+.top-stat-icon { font-size: 24px; margin-bottom: 10px; }
+
+/* 搜索筛选 */
+.filter-bar {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.dark-input-sm {
+  padding: 9px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; font-size: 13px; color: #fff;
+  outline: none; font-family: inherit;
+  transition: var(--transition);
+}
+
+.dark-input-sm:focus { border-color: rgba(42,157,143,0.5); background: rgba(255,255,255,0.09); }
+.dark-input-sm::placeholder { color: rgba(255,255,255,0.3); }
+
+/* 患者表格 */
+.patient-table {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px; overflow: hidden;
+}
+
+.table-header {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 0.8fr;
+  gap: 0; padding: 14px 20px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.th {
+  font-size: 12px; font-weight: 700;
+  color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.8px;
+}
+
+.table-row {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 0.8fr;
+  gap: 0; padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  align-items: center; cursor: pointer;
+  transition: background 0.2s;
+}
+
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: rgba(42,157,143,0.05); }
+
+.td { font-size: 13px; color: rgba(255,255,255,0.8); }
+
+.patient-name-cell {
+  display: flex; align-items: center; gap: 10px;
+}
+
+.patient-avatar-sm {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, #1E6B8C, #2A9D8F);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+
+.patient-name-text { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); }
+.patient-name-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+.status-tag {
+  display: inline-flex; align-items: center;
+  padding: 4px 10px; border-radius: 10px;
+  font-size: 11px; font-weight: 600;
+}
+
+.st-active { background: rgba(42,157,143,0.15); color: #3DBFAF; }
+.st-new { background: rgba(201,162,39,0.15); color: #F0C040; }
+.st-wait { background: rgba(107,79,160,0.15); color: #A080D8; }
+.st-closed { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
+
+.action-link {
+  font-size: 12px; color: rgba(42,157,143,0.8); font-weight: 600;
+  cursor: pointer; padding: 6px 12px; border-radius: 6px;
+  background: rgba(42,157,143,0.08); border: 1px solid rgba(42,157,143,0.15);
+  display: inline-block; transition: var(--transition);
+}
+
+.action-link:hover { background: rgba(42,157,143,0.15); color: #3DBFAF; }
+
+/* 分页 */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.pagination-info { font-size: 13px; color: rgba(255,255,255,0.4); }
+.page-btns { display: flex; gap: 6px; }
+.page-btn {
+  width: 32px; height: 32px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; cursor: pointer;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
+  transition: var(--transition);
+}
+
+.page-btn.active { background: linear-gradient(135deg, #1E6B8C, #2A9D8F); border-color: transparent; color: #fff; }
+.page-btn:hover:not(.active) { background: rgba(42,157,143,0.1); }
+
+@media (max-width: 1200px) { .top-stats { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 900px) {
+  .table-header, .table-row { grid-template-columns: 2fr 1fr 1.5fr 1fr; }
+  .th:nth-child(3), .td:nth-child(3) { display: none; }
+  .th:nth-child(5), .td:nth-child(5) { display: none; }
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar" style="background: rgba(8,8,20,0.92); border-bottom-color: rgba(42,157,143,0.2);">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="dashboard.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+        <div class="brand-icon" style="background: linear-gradient(135deg, #1E6B8C, #2A9D8F);">⚕️</div>
+        <div class="brand-text">
+          <span class="brand-name" style="-webkit-text-fill-color:transparent;background: linear-gradient(135deg, #2A9D8F, #3DBFAF);-webkit-background-clip:text;">安眠智道</span>
+          <span class="brand-sub">患者管理</span>
+        </div>
+      </a>
+    </div>
+    <div class="nav-actions">
+      <a href="dashboard.html" class="btn-login">← 工作台</a>
+      <button class="btn-register" style="background: linear-gradient(135deg, #1E6B8C, #2A9D8F); color:#fff;" onclick="logoutUser()">退出</button>
+    </div>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user" style="background: rgba(42,157,143,0.1); border: 1px solid rgba(42,157,143,0.15);">
+      <div class="sidebar-avatar" id="sidebarAvatar" style="background: linear-gradient(135deg, #1E6B8C, #2A9D8F);">医</div>
+      <div class="sidebar-username" id="sidebarName">加载中...</div>
+      <span class="sidebar-role" style="background: rgba(42,157,143,0.15); color: #3DBFAF; border-color: rgba(42,157,143,0.3);">医生端</span>
+    </div>
+    <p class="sidebar-section-title">工作台</p>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏥 工作台首页</a>
+      <a href="patients.html" class="active">👥 患者管理</a>
+      <a href="cases.html">📋 病例查阅</a>
+      <a href="statistics.html">📊 数据统计</a>
+    </nav>
+    <p class="sidebar-section-title" style="margin-top:16px">管理</p>
+    <nav class="sidebar-nav">
+      <a href="knowledge.html">📚 知识库管理</a>
+      <a href="settings.html">⚙️ 系统设置</a>
+    </nav>
+  </aside>
+
+  <main class="main-content" style="background: #0A0A1A;">
+    <div class="page-header">
+      <div>
+        <h1>👥 患者管理</h1>
+        <p>管理您的所有患者，查阅辨证记录与调养情况</p>
+      </div>
+      <button style="padding: 11px 22px; background: linear-gradient(135deg, #1E6B8C, #2A9D8F); border:none; border-radius: 10px; color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;" onclick="showToast('新增患者功能开发中', 'warning')">
+        + 新增患者
+      </button>
+    </div>
+
+    <!-- 统计 -->
+    <div class="top-stats">
+      <div class="top-stat">
+        <div class="top-stat-icon">👥</div>
+        <div class="top-stat-num">142</div>
+        <div class="top-stat-label">累计管理患者</div>
+      </div>
+      <div class="top-stat">
+        <div class="top-stat-icon">✅</div>
+        <div class="top-stat-num">98</div>
+        <div class="top-stat-label">调养中患者</div>
+      </div>
+      <div class="top-stat">
+        <div class="top-stat-icon">🆕</div>
+        <div class="top-stat-num">8</div>
+        <div class="top-stat-label">本月新增</div>
+      </div>
+      <div class="top-stat">
+        <div class="top-stat-icon">⏳</div>
+        <div class="top-stat-num">12</div>
+        <div class="top-stat-label">待回访患者</div>
+      </div>
+    </div>
+
+    <!-- 筛选 -->
+    <div class="filter-bar">
+      <input type="text" class="dark-input-sm" id="searchInput" placeholder="🔍 搜索患者姓名、证型..." style="flex:1; min-width:200px">
+      <select class="dark-input-sm" id="syndromeFilter" style="cursor:pointer">
+        <option value="">全部证型</option>
+        <option value="心脾两虚">心脾两虚</option>
+        <option value="肝火扰心">肝火扰心</option>
+        <option value="心肾不交">心肾不交</option>
+        <option value="心胆气虚">心胆气虚</option>
+        <option value="痰热扰心">痰热扰心</option>
+      </select>
+      <select class="dark-input-sm" id="statusFilter" style="cursor:pointer">
+        <option value="">全部状态</option>
+        <option value="调养中">调养中</option>
+        <option value="新增">新增</option>
+        <option value="待回访">待回访</option>
+      </select>
+    </div>
+
+    <!-- 患者表格 -->
+    <div class="patient-table">
+      <div class="table-header">
+        <span class="th">患者信息</span>
+        <span class="th">性别/年龄</span>
+        <span class="th">病程</span>
+        <span class="th">最新证型</span>
+        <span class="th">状态</span>
+        <span class="th">操作</span>
+      </div>
+
+      <div id="patientRows"></div>
+
+      <div class="pagination">
+        <span class="pagination-info">共 18 名患者，当前显示 1-10</span>
+        <div class="page-btns">
+          <div class="page-btn active">1</div>
+          <div class="page-btn">2</div>
+          <div class="page-btn">›</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+const mockPatients = [
+  { id: 1, name: '赵晓梅', gender: '女', age: 28, duration: '3个月', syndrome: '心脾两虚', status: '调养中', lastDate: '2026-05-08', records: 3 },
+  { id: 2, name: '李建国', gender: '男', age: 45, duration: '6个月', syndrome: '肝火扰心', status: '新增', lastDate: '2026-05-07', records: 1 },
+  { id: 3, name: '王玲玲', gender: '女', age: 53, duration: '1年+', syndrome: '心肾不交', status: '调养中', lastDate: '2026-05-06', records: 5 },
+  { id: 4, name: '张伟明', gender: '男', age: 38, duration: '4个月', syndrome: '痰热扰心', status: '待回访', lastDate: '2026-05-05', records: 2 },
+  { id: 5, name: '刘秀兰', gender: '女', age: 61, duration: '2年+', syndrome: '心胆气虚', status: '调养中', lastDate: '2026-05-04', records: 8 },
+  { id: 6, name: '陈小峰', gender: '男', age: 32, duration: '2个月', syndrome: '心脾两虚兼心肾不交', status: '待回访', lastDate: '2026-05-03', records: 2 },
+  { id: 7, name: '孙雅丽', gender: '女', age: 40, duration: '5个月', syndrome: '肝火扰心', status: '调养中', lastDate: '2026-05-02', records: 4 },
+  { id: 8, name: '周大明', gender: '男', age: 55, duration: '8个月', syndrome: '心脾两虚', status: '调养中', lastDate: '2026-05-01', records: 6 },
+  { id: 9, name: '吴晓燕', gender: '女', age: 47, duration: '3个月', syndrome: '心肾不交', status: '新增', lastDate: '2026-04-30', records: 1 },
+  { id: 10, name: '郑明远', gender: '男', age: 29, duration: '1个月', syndrome: '肝火扰心', status: '新增', lastDate: '2026-04-28', records: 1 },
+];
+
+const statusClass = { '调养中': 'st-active', '新增': 'st-new', '待回访': 'st-wait', '已结案': 'st-closed' };
+
+function renderPatients(patients) {
+  document.getElementById('patientRows').innerHTML = patients.map(p => `
+    <div class="table-row" onclick="window.location='cases.html'">
+      <div class="td">
+        <div class="patient-name-cell">
+          <div class="patient-avatar-sm">${p.name.charAt(0)}</div>
+          <div>
+            <div class="patient-name-text">${p.name}</div>
+            <div class="patient-name-sub">最近：${p.lastDate} · 共${p.records}次辨证</div>
+          </div>
+        </div>
+      </div>
+      <div class="td">${p.gender} · ${p.age}岁</div>
+      <div class="td">${p.duration}</div>
+      <div class="td" style="font-size:13px; font-weight:600; color: rgba(255,255,255,0.85);">${p.syndrome}</div>
+      <div class="td"><span class="status-tag ${statusClass[p.status] || 'st-closed'}">${p.status}</span></div>
+      <div class="td"><span class="action-link" onclick="event.stopPropagation(); window.location='cases.html'">查看病例</span></div>
+    </div>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const user = getCurrentUser();
+  if (!user || user.role !== 'doctor') { window.location.href = '../login.html'; return; }
+  document.getElementById('sidebarAvatar').textContent = user.name.charAt(0);
+  document.getElementById('sidebarName').textContent = user.name;
+
+  renderPatients(mockPatients);
+
+  function filterPatients() {
+    const kw = document.getElementById('searchInput').value.toLowerCase();
+    const sf = document.getElementById('syndromeFilter').value;
+    const st = document.getElementById('statusFilter').value;
+    const filtered = mockPatients.filter(p => {
+      const matchKw = !kw || p.name.includes(kw) || p.syndrome.includes(kw);
+      const matchSf = !sf || p.syndrome.includes(sf);
+      const matchSt = !st || p.status === st;
+      return matchKw && matchSf && matchSt;
+    });
+    renderPatients(filtered);
+  }
+
+  document.getElementById('searchInput').addEventListener('input', filterPatients);
+  document.getElementById('syndromeFilter').addEventListener('change', filterPatients);
+  document.getElementById('statusFilter').addEventListener('change', filterPatients);
+});
+</script>
+</body>
+</html>
