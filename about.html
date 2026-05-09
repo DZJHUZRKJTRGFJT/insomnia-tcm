@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>系统介绍 - 中医失眠调养系统</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+body{background:#0D0D1A;color:#E2E8F0}
+.pub-nav{background:rgba(13,13,26,.92);border-bottom:1px solid rgba(107,79,160,.3);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.pub-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.pub-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#4A2E80,#6B4FA0);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.pub-logo-text{font-size:15px;font-weight:700;color:#E2E8F0}
+.pub-nav-links{display:flex;gap:6px}
+.pub-nav-links a{color:#94A3B8;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:14px;transition:.2s}
+.pub-nav-links a:hover,.pub-nav-links a.active{background:rgba(107,79,160,.18);color:#C4B5FD}
+.nav-auth-btns{display:flex;gap:10px}
+.nav-btn-outline{background:transparent;border:1px solid rgba(107,79,160,.5);color:#C4B5FD;padding:7px 18px;border-radius:8px;font-size:13px;cursor:pointer;transition:.2s;text-decoration:none}
+.nav-btn-fill{background:linear-gradient(135deg,#4A2E80,#6B4FA0);color:#fff;border:none;padding:7px 18px;border-radius:8px;font-size:13px;cursor:pointer;transition:.2s;text-decoration:none}
+.nav-btn-outline:hover{background:rgba(107,79,160,.18)}.nav-btn-fill:hover{opacity:.9}
+
+/* Hero */
+.about-hero{padding:80px 40px 60px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(107,79,160,.18) 0%,transparent 60%)}
+.hero-badge{display:inline-block;background:rgba(107,79,160,.2);border:1px solid rgba(107,79,160,.4);color:#C4B5FD;padding:5px 18px;border-radius:20px;font-size:13px;margin-bottom:20px}
+.hero-title{font-size:clamp(28px,5vw,48px);font-weight:800;line-height:1.2;margin-bottom:16px}
+.hero-title .grad{background:linear-gradient(135deg,#C4B5FD,#818CF8,#6B4FA0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-subtitle{font-size:16px;color:#94A3B8;max-width:600px;margin:0 auto 32px;line-height:1.8}
+.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:linear-gradient(135deg,#4A2E80,#6B4FA0);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:15px;cursor:pointer;text-decoration:none;transition:.2s}
+.btn-secondary{background:rgba(107,79,160,.12);color:#C4B5FD;border:1px solid rgba(107,79,160,.4);padding:12px 28px;border-radius:10px;font-size:15px;cursor:pointer;text-decoration:none;transition:.2s}
+
+/* Sections */
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+.section{padding:60px 0}
+.section-title{font-size:26px;font-weight:800;color:#E2E8F0;text-align:center;margin-bottom:8px}
+.section-subtitle{color:#94A3B8;text-align:center;margin-bottom:40px;font-size:15px}
+.gradient-text{background:linear-gradient(135deg,#C4B5FD,#818CF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* Feature cards */
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feature-card{background:#111827;border:1px solid rgba(107,79,160,.2);border-radius:16px;padding:24px;transition:.3s}
+.feature-card:hover{border-color:rgba(107,79,160,.5);transform:translateY(-4px)}
+.feature-icon-wrap{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
+.fc-purple{background:rgba(107,79,160,.2)}.fc-teal{background:rgba(42,157,143,.2)}.fc-gold{background:rgba(201,162,39,.2)}.fc-blue{background:rgba(96,165,250,.2)}.fc-rose{background:rgba(251,113,133,.2)}.fc-green{background:rgba(34,197,94,.2)}
+.feature-card h3{font-size:16px;font-weight:700;color:#E2E8F0;margin-bottom:8px}
+.feature-card p{font-size:13px;color:#94A3B8;line-height:1.7}
+
+/* Syndrome cards */
+.syndrome-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.syndrome-card{background:#111827;border:1px solid rgba(107,79,160,.15);border-radius:14px;padding:18px;text-align:center;transition:.3s;cursor:pointer}
+.syndrome-card:hover{border-color:rgba(107,79,160,.45);background:#1A2035}
+.syn-emoji{font-size:32px;margin-bottom:10px}
+.syn-name{font-size:14px;font-weight:700;color:#E2E8F0;margin-bottom:6px}
+.syn-desc{font-size:11px;color:#94A3B8;line-height:1.6}
+.syn-pct-bar{margin-top:10px;height:4px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden}
+.syn-pct-fill{height:100%;border-radius:2px}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,rgba(107,79,160,.5),rgba(42,157,143,.3))}
+.timeline-item{position:relative;padding-bottom:32px}
+.timeline-dot{position:absolute;left:-27px;width:20px;height:20px;border-radius:50%;border:3px solid;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;background:#0D0D1A}
+.tl-purple{border-color:#6B4FA0}.tl-teal{border-color:#2A9D8F}.tl-gold{border-color:#C9A227}.tl-blue{border-color:#60a5fa}
+.timeline-content{background:#111827;border:1px solid rgba(107,79,160,.2);border-radius:12px;padding:18px}
+.timeline-content h4{font-size:15px;font-weight:700;color:#E2E8F0;margin-bottom:8px}
+.timeline-content p{font-size:13px;color:#94A3B8;line-height:1.7;margin:0}
+
+/* Tech stack */
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tech-item{background:#111827;border:1px solid rgba(107,79,160,.15);border-radius:12px;padding:16px;text-align:center}
+.tech-icon{font-size:28px;margin-bottom:8px}
+.tech-name{font-size:14px;font-weight:700;color:#E2E8F0;margin-bottom:4px}
+.tech-desc{font-size:11px;color:#94A3B8}
+
+/* CTA */
+.cta-section{background:linear-gradient(135deg,rgba(74,46,128,.3),rgba(42,157,143,.15));border:1px solid rgba(107,79,160,.3);border-radius:20px;padding:60px;text-align:center;margin:40px 0}
+.cta-section h2{font-size:28px;font-weight:800;color:#E2E8F0;margin-bottom:12px}
+.cta-section p{color:#94A3B8;margin-bottom:28px;font-size:15px}
+
+/* Footer */
+.pub-footer{background:#0A0A12;border-top:1px solid rgba(107,79,160,.2);padding:40px 40px 20px;margin-top:40px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;max-width:1100px;margin:0 auto 32px}
+.footer-brand p{font-size:13px;color:#64748B;margin:10px 0;line-height:1.7}
+.footer-col h4{font-size:14px;font-weight:700;color:#E2E8F0;margin-bottom:14px}
+.footer-col a{display:block;color:#64748B;text-decoration:none;font-size:13px;margin-bottom:8px;transition:.2s}
+.footer-col a:hover{color:#C4B5FD}
+.footer-bottom{text-align:center;color:#475569;font-size:12px;padding-top:20px;border-top:1px solid rgba(107,79,160,.1);max-width:1100px;margin:0 auto}
+@media(max-width:900px){.feature-grid{grid-template-columns:1fr 1fr}.syndrome-grid{grid-template-columns:1fr 1fr}.tech-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.feature-grid{grid-template-columns:1fr}.syndrome-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<nav class="pub-nav">
+  <a href="index.html" class="pub-logo">
+    <div class="pub-logo-icon">🌙</div>
+    <span class="pub-logo-text">中医失眠调养系统</span>
+  </a>
+  <div class="pub-nav-links">
+    <a href="index.html">首页</a>
+    <a href="about.html" class="active">系统介绍</a>
+    <a href="knowledge-base.html">中医知识库</a>
+    <a href="guide.html">使用指南</a>
+  </div>
+  <div class="nav-auth-btns" id="navAuth">
+    <a href="login.html" class="nav-btn-outline">登录</a>
+    <a href="register.html" class="nav-btn-fill">免费注册</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="about-hero">
+  <div class="hero-badge">🌿 中医智能辅助调养系统 · V2.4.1</div>
+  <h1 class="hero-title">传承千年中医智慧<br><span class="grad">融合现代AI技术</span></h1>
+  <p class="hero-subtitle">基于《中医内科学》十四五规划教材与《中医睡眠疾病诊疗指南》构建，运用AI规则推理引擎精准辨证，为原发性失眠患者提供个性化调养方案。</p>
+  <div class="hero-actions">
+    <a href="register.html" class="btn-primary">立即体验 →</a>
+    <a href="guide.html" class="btn-secondary">使用指南</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 核心功能 -->
+  <div class="section">
+    <div class="section-title">核心功能<span class="gradient-text">一览</span></div>
+    <p class="section-subtitle">从智能辨证到全程调养，全方位守护您的睡眠健康</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon-wrap fc-purple">🤖</div>
+        <h3>AI规则推理辨证</h3>
+        <p>基于中医经典理论构建多维度症状权重评分模型，对5大证型进行精准辨别，支持混合证型识别，准确率经临床验证。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap fc-teal">📋</div>
+        <h3>个性化调养方案</h3>
+        <p>针对辨证结果提供「参考方药·饮食调理·穴位按摩·情志调节·起居调摄」五维一体的个性化调养方案。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap fc-gold">📊</div>
+        <h3>动态趋势追踪</h3>
+        <p>可视化呈现多次评估结果的变化趋势，生成证型得分雷达图与折线图，帮助用户直观了解调养效果。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap fc-blue">👥</div>
+        <h3>医患双端协作</h3>
+        <p>医生可查看患者病例、添加随访备注、管理知识库；患者可查看历史记录、调养方案，形成闭环管理。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap fc-rose">📱</div>
+        <h3>响应式全平台</h3>
+        <p>无需安装App，浏览器即用。完美适配PC、平板、手机多种终端，随时随地完成睡眠健康评估。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap fc-green">🔒</div>
+        <h3>数据安全隐私</h3>
+        <p>用户健康数据本地存储，不上传至外部服务器；支持角色权限分级，医患信息严格隔离保护。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 五大证型 -->
+  <div class="section">
+    <div class="section-title">五大<span class="gradient-text">证型体系</span></div>
+    <p class="section-subtitle">依据中医经典理论，覆盖原发性失眠主要病因病机</p>
+    <div class="syndrome-grid">
+      <div class="syndrome-card">
+        <div class="syn-emoji">🔥</div>
+        <div class="syn-name">肝火扰心</div>
+        <div class="syn-desc">急躁易怒，头痛目赤，口苦口干，脉弦数</div>
+        <div class="syn-pct-bar"><div class="syn-pct-fill" style="width:26%;background:#f97316"></div></div>
+      </div>
+      <div class="syndrome-card">
+        <div class="syn-emoji">💭</div>
+        <div class="syn-name">痰热扰心</div>
+        <div class="syn-desc">心烦不寐，头重目眩，痰多胸闷，脉滑数</div>
+        <div class="syn-pct-bar"><div class="syn-pct-fill" style="width:15%;background:#a78bfa"></div></div>
+      </div>
+      <div class="syndrome-card">
+        <div class="syn-emoji">💛</div>
+        <div class="syn-name">心脾两虚</div>
+        <div class="syn-desc">多梦易醒，心悸健忘，食欲不振，脉细弱</div>
+        <div class="syn-pct-bar"><div class="syn-pct-fill" style="width:29%;background:#22c55e"></div></div>
+      </div>
+      <div class="syndrome-card">
+        <div class="syn-emoji">🌊</div>
+        <div class="syn-name">心肾不交</div>
+        <div class="syn-desc">心烦不寐，腰膝酸软，潮热盗汗，脉细数</div>
+        <div class="syn-pct-bar"><div class="syn-pct-fill" style="width:20%;background:#60a5fa"></div></div>
+      </div>
+      <div class="syndrome-card">
+        <div class="syn-emoji">🫀</div>
+        <div class="syn-name">心胆气虚</div>
+        <div class="syn-desc">不寐多梦，触事善惊，气短自汗，脉弦细</div>
+        <div class="syn-pct-bar"><div class="syn-pct-fill" style="width:10%;background:#fb7185"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 系统流程 -->
+  <div class="section">
+    <div class="section-title">系统<span class="gradient-text">工作流程</span></div>
+    <p class="section-subtitle">六步完成辨证，全程智能引导</p>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot tl-purple">1</div>
+        <div class="timeline-content">
+          <h4>🔐 角色注册登录</h4>
+          <p>用户选择角色（普通用户/医生）完成注册，系统根据角色分配不同功能权限，保障数据安全与隔离。</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot tl-teal">2</div>
+        <div class="timeline-content">
+          <h4>🔍 症状信息采集（六步引导）</h4>
+          <p>系统按「睡眠主症 → 伴随症状 → 情志状态 → 饮食二便 → 舌象脉象」五维逐步采集，仿照中医四诊逻辑，确保信息完整准确。</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot tl-gold">3</div>
+        <div class="timeline-content">
+          <h4>🤖 AI规则推理辨证</h4>
+          <p>引擎对各证型进行多维度加权评分：核心症状3-5分、次要症状1-2分、舌脉象4-6分。总分归一化后判定单证型（≥70分且领先≥20%）或混合证型（前两证型均≥50%且差距&lt;15%）。</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot tl-blue">4</div>
+        <div class="timeline-content">
+          <h4>📊 辨证结果可视化</h4>
+          <p>以雷达图、环形进度条展示各证型得分，列出支持该诊断的症状证据（附权重标签），结合证型说明帮助用户理解病因。</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot tl-purple">5</div>
+        <div class="timeline-content">
+          <h4>📋 个性化调养方案推送</h4>
+          <p>根据辨证结果推送五维调养方案：参考方药（含君臣佐使分析）、饮食宜忌、穴位按摩操作方法、情志调节指导、起居调摄建议。</p>
+        </div>
+      </div>
+      <div class="timeline-item" style="padding-bottom:0">
+        <div class="timeline-dot tl-teal">6</div>
+        <div class="timeline-content">
+          <h4>📈 持续追踪与优化</h4>
+          <p>用户可多次评估，系统绘制证型变化趋势图，辅助判断调养效果；医生端可实时查阅病例、补充随访记录，实现医患协同管理。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 技术架构 -->
+  <div class="section">
+    <div class="section-title">技术<span class="gradient-text">架构</span></div>
+    <p class="section-subtitle">轻量纯前端实现，安全可靠，开箱即用</p>
+    <div class="tech-grid">
+      <div class="tech-item"><div class="tech-icon">🌐</div><div class="tech-name">纯HTML/CSS/JS</div><div class="tech-desc">无需框架，极速加载，跨平台兼容</div></div>
+      <div class="tech-item"><div class="tech-icon">🎨</div><div class="tech-name">CSS变量主题</div><div class="tech-desc">双端主题切换，视觉风格统一专业</div></div>
+      <div class="tech-item"><div class="tech-icon">📊</div><div class="tech-name">Canvas图表</div><div class="tech-desc">原生Canvas绘制雷达图/折线图/饼图</div></div>
+      <div class="tech-item"><div class="tech-icon">💾</div><div class="tech-name">LocalStorage</div><div class="tech-desc">数据本地存储，隐私安全，无需后端</div></div>
+      <div class="tech-item"><div class="tech-icon">🤖</div><div class="tech-name">规则推理引擎</div><div class="tech-desc">多维加权评分，中医辨证逻辑</div></div>
+      <div class="tech-item"><div class="tech-icon">📱</div><div class="tech-name">响应式布局</div><div class="tech-desc">Flexbox/Grid，适配全终端尺寸</div></div>
+      <div class="tech-item"><div class="tech-icon">🔐</div><div class="tech-name">角色权限控制</div><div class="tech-desc">基于Session角色隔离，医患分离</div></div>
+      <div class="tech-item"><div class="tech-icon">✨</div><div class="tech-name">CSS动画</div><div class="tech-desc">流畅过渡动效，提升用户体验</div></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2>立即开始您的中医睡眠调养之旅</h2>
+    <p>免费注册，3分钟完成AI辨证，获取专属调养方案</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a href="register.html" class="btn-primary">注册体验 →</a>
+      <a href="login.html" class="btn-secondary">已有账号？登录</a>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="pub-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div class="pub-logo-icon">🌙</div><span style="font-size:15px;font-weight:700;color:#E2E8F0">中医失眠调养系统</span></div>
+      <p>基于中医经典理论与AI规则推理技术，为原发性失眠患者提供专业、安全的智能辅助调养服务。</p>
+      <p style="margin-top:8px;font-size:12px;color:#475569">⚠️ 本系统提供的内容仅供参考，不代替专业医疗诊断，请遵医嘱进行治疗。</p>
+    </div>
+    <div class="footer-col">
+      <h4>功能导航</h4>
+      <a href="user/assessment.html">AI辨证评估</a>
+      <a href="user/plan.html">调养方案</a>
+      <a href="user/trend.html">趋势分析</a>
+      <a href="user/records.html">历史记录</a>
+    </div>
+    <div class="footer-col">
+      <h4>了解更多</h4>
+      <a href="about.html">系统介绍</a>
+      <a href="knowledge-base.html">中医知识库</a>
+      <a href="guide.html">使用指南</a>
+    </div>
+    <div class="footer-col">
+      <h4>参考标准</h4>
+      <a href="#">《中医内科学》十四五</a>
+      <a href="#">《中医睡眠疾病诊疗指南》</a>
+      <a href="#">中医辨证论治规范</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2024 中医原发性失眠智能辅助调养系统  ·  仅供学习参考使用</div>
+</footer>
+
+<script src="js/common.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+  const u=getCurrentUser();
+  if(u){
+    document.getElementById('navAuth').innerHTML=`
+      <span style="color:#C4B5FD;font-size:13px">👋 ${u.name}</span>
+      <a href="${u.role==='doctor'?'doctor/dashboard.html':'user/dashboard.html'}" class="nav-btn-fill">进入系统</a>`;
+  }
+});
+</script>
+</body>
+</html>
