@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识库管理 · 安眠智道</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #0A0A1A; }
+.page-header { margin-bottom: 28px; }
+.page-header h1 { font-size: 24px; font-weight: 800; color: rgba(255,255,255,0.9); }
+.page-header p { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+/* 标签 */
+.kb-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.kb-tab {
+  padding: 10px 22px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.5);
+  cursor: pointer; transition: var(--transition); font-family: inherit;
+}
+.kb-tab:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.08); }
+.kb-tab.active { background: linear-gradient(135deg, #1E6B8C, #2A9D8F); border-color: transparent; color: #fff; }
+
+.kb-panel { display: none; animation: fadeIn 0.3s ease; }
+.kb-panel.active { display: block; }
+
+/* 证型卡片 */
+.syndrome-kb-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+}
+
+.syndrome-kb-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; overflow: hidden;
+  transition: var(--transition);
+}
+
+.syndrome-kb-card:hover { border-color: rgba(42,157,143,0.3); }
+
+.skc-header {
+  padding: 18px 22px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; gap: 12px;
+}
+
+.skc-icon { font-size: 28px; }
+.skc-title { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.9); }
+.skc-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+.skc-body { padding: 18px 22px; }
+
+.rule-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.rule-item:last-child { border-bottom: none; }
+
+.rule-weight {
+  padding: 3px 10px; border-radius: 8px;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+
+.rw-5 { background: rgba(231,111,81,0.15); color: #F0846A; }
+.rw-4 { background: rgba(201,162,39,0.15); color: #F0C040; }
+.rw-3 { background: rgba(42,157,143,0.15); color: #3DBFAF; }
+.rw-2 { background: rgba(107,79,160,0.15); color: #A080D8; }
+
+.rule-text { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; }
+
+.edit-btn {
+  margin-left: auto; padding: 4px 12px; border-radius: 6px;
+  background: rgba(42,157,143,0.1); border: 1px solid rgba(42,157,143,0.2);
+  color: #3DBFAF; font-size: 12px; cursor: pointer;
+  transition: var(--transition); font-family: inherit; flex-shrink: 0;
+}
+
+.edit-btn:hover { background: rgba(42,157,143,0.2); }
+
+/* 辨证规则表格 */
+.rule-table {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; overflow: hidden;
+}
+
+.rule-table-header {
+  display: grid; grid-template-columns: 1.5fr 1fr 0.5fr 1fr 1fr;
+  padding: 12px 20px; background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.rule-table-row {
+  display: grid; grid-template-columns: 1.5fr 1fr 0.5fr 1fr 1fr;
+  padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);
+  align-items: center;
+}
+
+.rule-table-row:last-child { border-bottom: none; }
+.rule-table-row:hover { background: rgba(42,157,143,0.04); }
+
+.rth { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.8px; }
+.rtd { font-size: 13px; color: rgba(255,255,255,0.75); }
+
+/* 添加按钮 */
+.add-rule-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; background: rgba(42,157,143,0.1);
+  border: 1px dashed rgba(42,157,143,0.3); border-radius: 10px;
+  color: #3DBFAF; font-size: 14px; font-weight: 600; cursor: pointer;
+  margin-top: 12px; transition: var(--transition); font-family: inherit;
+  width: 100%;
+  justify-content: center;
+}
+
+.add-rule-btn:hover { background: rgba(42,157,143,0.15); }
+
+/* 统计信息 */
+.kb-stats {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px;
+}
+
+.kb-stat {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 18px; text-align: center;
+}
+
+.kb-stat-num { font-size: 28px; font-weight: 900; color: rgba(255,255,255,0.9); }
+.kb-stat-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 6px; }
+
+@media (max-width: 1200px) { .syndrome-kb-grid { grid-template-columns: 1fr; } .kb-stats { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 900px) { .rule-table-header, .rule-table-row { grid-template-columns: 1.5fr 1fr 0.5fr; } }
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar" style="background: rgba(8,8,20,0.92); border-bottom-color: rgba(42,157,143,0.2);">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="dashboard.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+        <div class="brand-icon" style="background: linear-gradient(135deg, #1E6B8C, #2A9D8F);">⚕️</div>
+        <div class="brand-text">
+          <span class="brand-name" style="-webkit-text-fill-color:transparent;background: linear-gradient(135deg, #2A9D8F, #3DBFAF);-webkit-background-clip:text;">安眠智道</span>
+          <span class="brand-sub">知识库管理</span>
+        </div>
+      </a>
+    </div>
+    <div class="nav-actions">
+      <a href="dashboard.html" class="btn-login">← 工作台</a>
+      <button class="btn-register" style="background: linear-gradient(135deg, #1E6B8C, #2A9D8F); color:#fff;" onclick="logoutUser()">退出</button>
+    </div>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user" style="background: rgba(42,157,143,0.1); border: 1px solid rgba(42,157,143,0.15);">
+      <div class="sidebar-avatar" id="sidebarAvatar" style="background: linear-gradient(135deg, #1E6B8C, #2A9D8F);">医</div>
+      <div class="sidebar-username" id="sidebarName">加载中...</div>
+      <span class="sidebar-role" style="background: rgba(42,157,143,0.15); color: #3DBFAF; border-color: rgba(42,157,143,0.3);">医生端</span>
+    </div>
+    <p class="sidebar-section-title">工作台</p>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏥 工作台首页</a>
+      <a href="patients.html">👥 患者管理</a>
+      <a href="cases.html">📋 病例查阅</a>
+      <a href="statistics.html">📊 数据统计</a>
+    </nav>
+    <p class="sidebar-section-title" style="margin-top:16px">管理</p>
+    <nav class="sidebar-nav">
+      <a href="knowledge.html" class="active">📚 知识库管理</a>
+      <a href="settings.html">⚙️ 系统设置</a>
+    </nav>
+  </aside>
+
+  <main class="main-content" style="background: #0A0A1A;">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <h1>📚 知识库管理</h1>
+        <p>管理辨证规则、症状权重、调养方案数据库 · 当前版本 V1.2</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button style="padding:10px 18px; background:rgba(201,162,39,0.1); border:1px solid rgba(201,162,39,0.25); border-radius:8px; color:#F0C040; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;" onclick="showToast('知识库版本导出功能开发中', 'warning')">📤 导出</button>
+        <button style="padding:10px 18px; background: linear-gradient(135deg, #1E6B8C, #2A9D8F); border:none; border-radius:8px; color:#fff; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;" onclick="showToast('知识库已保存并同步', 'success')">💾 保存更改</button>
+      </div>
+    </div>
+
+    <!-- 统计 -->
+    <div class="kb-stats">
+      <div class="kb-stat"><div class="kb-stat-num">5</div><div class="kb-stat-label">证型数量</div></div>
+      <div class="kb-stat"><div class="kb-stat-num">42</div><div class="kb-stat-label">症状条目</div></div>
+      <div class="kb-stat"><div class="kb-stat-num">87</div><div class="kb-stat-label">辨证规则数</div></div>
+      <div class="kb-stat"><div class="kb-stat-num">V1.2</div><div class="kb-stat-label">当前版本</div></div>
+    </div>
+
+    <!-- 标签页 -->
+    <div class="kb-tabs">
+      <button class="kb-tab active" onclick="switchKb(0, this)">🩺 证型核心库</button>
+      <button class="kb-tab" onclick="switchKb(1, this)">⚖️ 症状权重规则</button>
+      <button class="kb-tab" onclick="switchKb(2, this)">🌿 调养方案库</button>
+    </div>
+
+    <!-- 证型核心库 -->
+    <div class="kb-panel active" id="kb0">
+      <div class="syndrome-kb-grid">
+        <div class="syndrome-kb-card">
+          <div class="skc-header">
+            <span class="skc-icon">🔥</span>
+            <div>
+              <div class="skc-title">肝火扰心证</div>
+              <div class="skc-sub">病机：肝火上炎，扰动心神</div>
+            </div>
+            <button class="edit-btn" onclick="showToast('编辑功能需要管理员权限', 'warning')">编辑</button>
+          </div>
+          <div class="skc-body">
+            <div class="rule-item"><span class="rule-weight rw-5">5分</span><span class="rule-text">急躁易怒（核心情志症状，权重最高）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-4">4分</span><span class="rule-text">口干口苦（肝火上炎典型表现）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-5">6分</span><span class="rule-text">舌红苔黄（舌脉关键指征）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-5">6分</span><span class="rule-text">脉弦数（脉象关键指征，决定证型优先级）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-3">3分</span><span class="rule-text">头晕头胀、便秘溲赤（次要症状）</span></div>
+          </div>
+        </div>
+
+        <div class="syndrome-kb-card">
+          <div class="skc-header">
+            <span class="skc-icon">💛</span>
+            <div>
+              <div class="skc-title">心脾两虚证</div>
+              <div class="skc-sub">病机：心脾气血不足，神失所养</div>
+            </div>
+            <button class="edit-btn" onclick="showToast('编辑功能需要管理员权限', 'warning')">编辑</button>
+          </div>
+          <div class="skc-body">
+            <div class="rule-item"><span class="rule-weight rw-4">4分</span><span class="rule-text">心悸健忘（心脾两虚核心症状）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-3">3分</span><span class="rule-text">神疲乏力、食少便溏（脾虚表现）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-5">5分</span><span class="rule-text">舌淡苔白（气血不足舌象）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-5">6分</span><span class="rule-text">脉细弱（关键脉象指征）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-4">4分</span><span class="rule-text">忧思过度（主要情志诱因）</span></div>
+          </div>
+        </div>
+
+        <div class="syndrome-kb-card">
+          <div class="skc-header">
+            <span class="skc-icon">🌊</span>
+            <div>
+              <div class="skc-title">心肾不交证</div>
+              <div class="skc-sub">病机：肾阴不足，心火偏亢</div>
+            </div>
+            <button class="edit-btn" onclick="showToast('编辑功能需要管理员权限', 'warning')">编辑</button>
+          </div>
+          <div class="skc-body">
+            <div class="rule-item"><span class="rule-weight rw-5">5分</span><span class="rule-text">腰膝酸软（肾虚典型症状）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-4">4分</span><span class="rule-text">盗汗、五心烦热（阴虚火旺表现）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-5">5分</span><span class="rule-text">舌红少苔（阴虚关键舌象）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-5">6分</span><span class="rule-text">脉细数（阴虚有热脉象）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-3">3分</span><span class="rule-text">耳鸣健忘（肾精不足表现）</span></div>
+          </div>
+        </div>
+
+        <div class="syndrome-kb-card">
+          <div class="skc-header">
+            <span class="skc-icon">🌙</span>
+            <div>
+              <div class="skc-title">心胆气虚证</div>
+              <div class="skc-sub">病机：心胆虚怯，神志不宁</div>
+            </div>
+            <button class="edit-btn" onclick="showToast('编辑功能需要管理员权限', 'warning')">编辑</button>
+          </div>
+          <div class="skc-body">
+            <div class="rule-item"><span class="rule-weight rw-5">5分</span><span class="rule-text">心悸胆怯、触事易惊（核心主症）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-3">3分</span><span class="rule-text">气短自汗、善太息（气虚表现）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-3">3分</span><span class="rule-text">舌淡（气虚舌象）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-5">6分</span><span class="rule-text">脉弦细（心胆气虚关键脉象）</span></div>
+            <div class="rule-item"><span class="rule-weight rw-5">5分</span><span class="rule-text">胆小恐惧情志（最具鉴别价值）</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: rgba(201,162,39,0.05); border: 1px solid rgba(201,162,39,0.15); border-radius: 12px; padding: 16px 20px; margin-top: 20px;">
+        <p style="font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.8;">
+          📖 <strong style="color: rgba(255,255,255,0.8);">知识来源：</strong>
+          《中医内科学》（十四五规划教材）、《中医睡眠疾病诊疗指南》、中华中医药学会内科分会失眠诊疗专家共识<br>
+          ⚠️ 知识库内容更新需经过中医内科专家评审确认，修改时请谨慎操作。
+        </p>
+      </div>
+    </div>
+
+    <!-- 症状权重规则 -->
+    <div class="kb-panel" id="kb1">
+      <div class="rule-table">
+        <div class="rule-table-header">
+          <span class="rth">症状名称</span>
+          <span class="rth">所属证型</span>
+          <span class="rth">权重</span>
+          <span class="rth">症状类别</span>
+          <span class="rth">操作</span>
+        </div>
+
+        ${[
+          ['急躁易怒', '肝火扰心', '5分', '情志症状'],
+          ['头晕头胀', '肝火扰心', '3分', '伴随症状'],
+          ['口干口苦', '肝火扰心', '4分', '伴随症状'],
+          ['便秘溲赤', '肝火扰心', '3分', '饮食二便'],
+          ['舌红苔黄', '肝火扰心', '6分', '舌脉关键'],
+          ['脉弦数', '肝火扰心', '6分', '舌脉关键'],
+          ['心悸健忘', '心脾两虚', '4分', '主要症状'],
+          ['神疲乏力', '心脾两虚', '3分', '伴随症状'],
+          ['舌淡苔白', '心脾两虚', '5分', '舌脉关键'],
+          ['脉细弱', '心脾两虚', '6分', '舌脉关键'],
+        ].map(r => `
+          <div class="rule-table-row">
+            <div class="rtd">${r[0]}</div>
+            <div class="rtd">${r[1]}</div>
+            <div class="rtd" style="color: #F0C040; font-weight:700">${r[2]}</div>
+            <div class="rtd"><span style="background:rgba(42,157,143,0.1);color:#3DBFAF;padding:3px 8px;border-radius:6px;font-size:11px">${r[3]}</span></div>
+            <div class="rtd">
+              <button class="edit-btn" onclick="showToast('编辑权重：此操作需要管理员权限', 'warning')">修改</button>
+            </div>
+          </div>`).join('')}
+
+        <div style="padding: 12px 20px;">
+          <button class="add-rule-btn" onclick="showToast('新增症状规则需要管理员权限并经专家评审', 'warning')">+ 新增症状权重规则</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 调养方案库 -->
+    <div class="kb-panel" id="kb2">
+      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:16px; margin-bottom: 16px;">
+        ${[
+          { name: '肝火扰心', items: ['龙胆泻肝汤加减', '6种食疗方案', '4个特效穴位', '情志调节3项', '起居禁忌5项'] },
+          { name: '痰热扰心', items: ['温胆汤加减', '5种食疗方案', '4个特效穴位', '情志调节2项', '生活调摄4项'] },
+          { name: '心脾两虚', items: ['归脾汤加减', '8种食疗方案', '4个特效穴位', '情志调节4项', '起居调摄5项'] },
+          { name: '心肾不交', items: ['六味地黄丸合交泰丸', '7种食疗方案', '4个特效穴位', '情志调节4项', '起居禁忌4项'] },
+          { name: '心胆气虚', items: ['安神定志丸合酸枣仁汤', '6种食疗方案', '4个特效穴位', '情志调节4项', '生活调摄4项'] },
+        ].map(s => `
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
+            <div style="font-size:15px;font-weight:700;color:rgba(255,255,255,0.9);margin-bottom:12px">${s.name}证</div>
+            ${s.items.map(i => `<div style="font-size:12px;color:rgba(255,255,255,0.5);padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">✓ ${i}</div>`).join('')}
+            <button class="edit-btn" style="margin-top:12px;width:100%;text-align:center" onclick="showToast('方案编辑需要专家评审确认', 'warning')">查看详情 / 编辑</button>
+          </div>`).join('')}
+      </div>
+      <button class="add-rule-btn" onclick="showToast('新增调养方案需要经过中医专家评审', 'warning')">+ 新增证型调养方案</button>
+    </div>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+function switchKb(idx, btn) {
+  document.querySelectorAll('.kb-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.kb-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`kb${idx}`).classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const user = getCurrentUser();
+  if (!user || user.role !== 'doctor') { window.location.href = '../login.html'; return; }
+  document.getElementById('sidebarAvatar').textContent = user.name.charAt(0);
+  document.getElementById('sidebarName').textContent = user.name;
+});
+</script>
+</body>
+</html>
