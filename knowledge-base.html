@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中医知识库 - 中医失眠调养系统</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+body{background:#0D0D1A;color:#E2E8F0}
+.pub-nav{background:rgba(13,13,26,.92);border-bottom:1px solid rgba(107,79,160,.3);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.pub-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.pub-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#4A2E80,#6B4FA0);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.pub-logo-text{font-size:15px;font-weight:700;color:#E2E8F0}
+.pub-nav-links{display:flex;gap:6px}
+.pub-nav-links a{color:#94A3B8;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:14px;transition:.2s}
+.pub-nav-links a:hover,.pub-nav-links a.active{background:rgba(107,79,160,.18);color:#C4B5FD}
+.nav-auth-btns{display:flex;gap:10px}
+.nav-btn-outline{background:transparent;border:1px solid rgba(107,79,160,.5);color:#C4B5FD;padding:7px 18px;border-radius:8px;font-size:13px;cursor:pointer;transition:.2s;text-decoration:none}
+.nav-btn-fill{background:linear-gradient(135deg,#4A2E80,#6B4FA0);color:#fff;border:none;padding:7px 18px;border-radius:8px;font-size:13px;cursor:pointer;transition:.2s;text-decoration:none}
+
+.kb-hero{padding:50px 40px 30px;text-align:center}
+.kb-hero h1{font-size:36px;font-weight:800;margin-bottom:10px}
+.grad{background:linear-gradient(135deg,#C4B5FD,#818CF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.kb-hero p{color:#94A3B8;font-size:15px;margin-bottom:24px}
+.search-bar{max-width:520px;margin:0 auto;display:flex;gap:0;background:#111827;border:1px solid rgba(107,79,160,.3);border-radius:12px;overflow:hidden}
+.search-bar input{flex:1;background:transparent;border:none;color:#E2E8F0;padding:13px 18px;font-size:14px;outline:none}
+.search-bar button{background:linear-gradient(135deg,#4A2E80,#6B4FA0);color:#fff;border:none;padding:0 22px;font-size:14px;cursor:pointer}
+
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+.kb-layout{display:grid;grid-template-columns:220px 1fr;gap:24px;padding:32px 0}
+
+/* Left nav */
+.kb-nav{background:#111827;border:1px solid rgba(107,79,160,.2);border-radius:14px;padding:14px;position:sticky;top:80px}
+.kb-nav-title{font-size:12px;color:#64748B;text-transform:uppercase;letter-spacing:.5px;padding:4px 8px;margin-bottom:8px}
+.kb-nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#94A3B8;font-size:13px;transition:.2s;text-decoration:none}
+.kb-nav-item:hover,.kb-nav-item.active{background:rgba(107,79,160,.15);color:#C4B5FD}
+.kb-nav-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Content */
+.kb-section{margin-bottom:36px}
+.kb-section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(107,79,160,.2)}
+.kb-section-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.kb-section-title{font-size:20px;font-weight:700;color:#E2E8F0}
+.kb-section-sub{font-size:12px;color:#64748B;margin-top:2px}
+
+/* Syndrome detail card */
+.syn-detail-card{background:#111827;border:1px solid rgba(107,79,160,.2);border-radius:16px;overflow:hidden;margin-bottom:20px}
+.syn-card-header{padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(107,79,160,.1)}
+.syn-card-icon{font-size:28px}
+.syn-card-name{font-size:17px;font-weight:700;color:#E2E8F0}
+.syn-card-tagline{font-size:12px;color:#94A3B8;margin-top:2px}
+.syn-card-body{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.syn-group{display:flex;flex-direction:column;gap:6px}
+.syn-group-label{font-size:11px;color:#6B4FA0;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.syn-group-content{font-size:13px;color:#CBD5E1;line-height:1.7}
+.syn-tags{display:flex;flex-wrap:wrap;gap:6px}
+.syn-tag{padding:3px 10px;border-radius:20px;font-size:11px}
+.tag-core{background:rgba(239,68,68,.12);color:#fca5a5}
+.tag-main{background:rgba(249,115,22,.12);color:#fdba74}
+.tag-sub{background:rgba(107,79,160,.12);color:#c4b5fd}
+
+/* Formula card */
+.formula-card{background:#111827;border:1px solid rgba(201,162,39,.2);border-radius:14px;padding:18px;margin-bottom:14px}
+.formula-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.formula-name{font-size:16px;font-weight:700;color:#E9C46A}
+.formula-type{background:rgba(201,162,39,.12);color:#E9C46A;padding:3px 10px;border-radius:20px;font-size:11px}
+.formula-function{font-size:13px;color:#94A3B8;margin-bottom:10px;line-height:1.6}
+.herbs-row{display:flex;flex-wrap:wrap;gap:6px}
+.herb-tag{padding:4px 10px;border-radius:6px;font-size:12px}
+.herb-jun{background:rgba(233,196,106,.15);color:#E9C46A;border:1px solid rgba(233,196,106,.3)}
+.herb-chen{background:rgba(42,157,143,.1);color:#5eead4;border:1px solid rgba(42,157,143,.25)}
+.herb-zuo{background:rgba(107,79,160,.1);color:#c4b5fd;border:1px solid rgba(107,79,160,.25)}
+.herb-shi{background:rgba(148,163,184,.08);color:#94A3B8;border:1px solid rgba(148,163,184,.2)}
+
+/* Acupoint table */
+.acu-table{width:100%;border-collapse:collapse}
+.acu-table th{background:#0D1B2A;color:#64748B;font-size:11px;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(107,79,160,.15)}
+.acu-table td{padding:10px 14px;border-bottom:1px solid rgba(107,79,160,.07);font-size:13px;color:#CBD5E1;vertical-align:top}
+.acu-table tr:last-child td{border:none}
+.acu-name{font-weight:600;color:#C4B5FD}
+
+/* Reference */
+.ref-card{background:#111827;border:1px solid rgba(107,79,160,.15);border-radius:10px;padding:14px 18px;margin-bottom:10px}
+.ref-card h4{font-size:14px;color:#E2E8F0;margin-bottom:6px}
+.ref-card p{font-size:12px;color:#94A3B8;line-height:1.7;margin:0}
+
+/* Footer */
+.pub-footer{background:#0A0A12;border-top:1px solid rgba(107,79,160,.2);padding:32px 40px 16px;margin-top:40px;text-align:center;color:#475569;font-size:13px}
+
+@media(max-width:900px){.kb-layout{grid-template-columns:1fr}.kb-nav{position:static}.syn-card-body{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="pub-nav">
+  <a href="index.html" class="pub-logo">
+    <div class="pub-logo-icon">🌙</div>
+    <span class="pub-logo-text">中医失眠调养系统</span>
+  </a>
+  <div class="pub-nav-links">
+    <a href="index.html">首页</a>
+    <a href="about.html">系统介绍</a>
+    <a href="knowledge-base.html" class="active">中医知识库</a>
+    <a href="guide.html">使用指南</a>
+  </div>
+  <div class="nav-auth-btns" id="navAuth">
+    <a href="login.html" class="nav-btn-outline">登录</a>
+    <a href="register.html" class="nav-btn-fill">免费注册</a>
+  </div>
+</nav>
+
+<div class="kb-hero">
+  <h1>中医<span class="grad">知识库</span></h1>
+  <p>五大失眠证型 · 经典方剂解析 · 穴位图谱 · 养生要诀</p>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="搜索证型、方剂、穴位…" oninput="filterContent(this.value)">
+    <button onclick="filterContent(document.getElementById('searchInput').value)">🔍 搜索</button>
+  </div>
+</div>
+
+<div class="container">
+<div class="kb-layout">
+
+  <!-- 左侧导航 -->
+  <div class="kb-nav">
+    <div class="kb-nav-title">证型分类</div>
+    <a class="kb-nav-item active" href="#section-liver" onclick="switchNav(this)"><div class="dot" style="background:#f97316"></div>肝火扰心</a>
+    <a class="kb-nav-item" href="#section-phlegm" onclick="switchNav(this)"><div class="dot" style="background:#a78bfa"></div>痰热扰心</a>
+    <a class="kb-nav-item" href="#section-heart-spleen" onclick="switchNav(this)"><div class="dot" style="background:#22c55e"></div>心脾两虚</a>
+    <a class="kb-nav-item" href="#section-heart-kidney" onclick="switchNav(this)"><div class="dot" style="background:#60a5fa"></div>心肾不交</a>
+    <a class="kb-nav-item" href="#section-gallbladder" onclick="switchNav(this)"><div class="dot" style="background:#fb7185"></div>心胆气虚</a>
+    <div class="kb-nav-title" style="margin-top:12px">专题</div>
+    <a class="kb-nav-item" href="#section-acupoints" onclick="switchNav(this)">🫴 穴位图谱</a>
+    <a class="kb-nav-item" href="#section-diet" onclick="switchNav(this)">🍃 食疗养生</a>
+    <a class="kb-nav-item" href="#section-refs" onclick="switchNav(this)">📚 参考文献</a>
+  </div>
+
+  <!-- 右侧内容 -->
+  <div id="kbContent">
+
+    <!-- 肝火扰心 -->
+    <div class="kb-section" id="section-liver">
+      <div class="kb-section-header">
+        <div class="kb-section-icon" style="background:rgba(249,115,22,.12)">🔥</div>
+        <div><div class="kb-section-title">肝火扰心</div><div class="kb-section-sub">多因情志不舒、郁而化火，上扰心神</div></div>
+      </div>
+      <div class="syn-detail-card">
+        <div class="syn-card-header">
+          <div class="syn-card-icon">🔥</div>
+          <div><div class="syn-card-name">证候特征</div><div class="syn-card-tagline">病机：肝郁化火，火热内扰，上扰心神</div></div>
+        </div>
+        <div class="syn-card-body">
+          <div class="syn-group"><div class="syn-group-label">主症</div><div class="syn-tags"><span class="syn-tag tag-core">彻夜不寐</span><span class="syn-tag tag-core">急躁易怒</span><span class="syn-tag tag-main">头痛目赤</span><span class="syn-tag tag-main">胸胁胀满</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">次症</div><div class="syn-tags"><span class="syn-tag tag-sub">口苦口干</span><span class="syn-tag tag-sub">便秘溲赤</span><span class="syn-tag tag-sub">头晕耳鸣</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">舌象</div><div class="syn-group-content">舌红苔黄</div></div>
+          <div class="syn-group"><div class="syn-group-label">脉象</div><div class="syn-group-content">脉弦数</div></div>
+          <div class="syn-group" style="grid-column:1/-1"><div class="syn-group-label">治则</div><div class="syn-group-content">疏肝解郁，清火宁心安神</div></div>
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-header"><span class="formula-name">龙胆泻肝汤</span><span class="formula-type">清热泻火剂</span></div>
+        <div class="formula-function">功效：清肝泻火，清利湿热。主治肝胆实火上炎，肝经湿热下注之证。</div>
+        <div class="herbs-row">
+          <span class="herb-tag herb-jun">龙胆草（君）</span>
+          <span class="herb-tag herb-chen">栀子（臣）</span><span class="herb-tag herb-chen">黄芩（臣）</span>
+          <span class="herb-tag herb-zuo">柴胡（佐）</span><span class="herb-tag herb-zuo">生地（佐）</span><span class="herb-tag herb-zuo">当归（佐）</span>
+          <span class="herb-tag herb-shi">甘草（使）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 痰热扰心 -->
+    <div class="kb-section" id="section-phlegm">
+      <div class="kb-section-header">
+        <div class="kb-section-icon" style="background:rgba(167,139,250,.12)">💭</div>
+        <div><div class="kb-section-title">痰热扰心</div><div class="kb-section-sub">饮食不节，脾失健运，痰热内生扰心</div></div>
+      </div>
+      <div class="syn-detail-card">
+        <div class="syn-card-header">
+          <div class="syn-card-icon">💭</div>
+          <div><div class="syn-card-name">证候特征</div><div class="syn-card-tagline">病机：痰热互结，上扰心神，神不守舍</div></div>
+        </div>
+        <div class="syn-card-body">
+          <div class="syn-group"><div class="syn-group-label">主症</div><div class="syn-tags"><span class="syn-tag tag-core">心烦不寐</span><span class="syn-tag tag-core">头重目眩</span><span class="syn-tag tag-main">痰多胸闷</span><span class="syn-tag tag-main">恶心嗳气</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">次症</div><div class="syn-tags"><span class="syn-tag tag-sub">口苦</span><span class="syn-tag tag-sub">脘腹痞满</span><span class="syn-tag tag-sub">头重如裹</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">舌象</div><div class="syn-group-content">舌红苔黄腻</div></div>
+          <div class="syn-group"><div class="syn-group-label">脉象</div><div class="syn-group-content">脉滑数</div></div>
+          <div class="syn-group" style="grid-column:1/-1"><div class="syn-group-label">治则</div><div class="syn-group-content">清热化痰，和中安神</div></div>
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-header"><span class="formula-name">黄连温胆汤</span><span class="formula-type">清热化痰剂</span></div>
+        <div class="formula-function">功效：清热燥湿，理气化痰，和胃利胆。适用于痰热内扰所致失眠、心烦等。</div>
+        <div class="herbs-row">
+          <span class="herb-tag herb-jun">黄连（君）</span>
+          <span class="herb-tag herb-chen">竹茹（臣）</span><span class="herb-tag herb-chen">半夏（臣）</span>
+          <span class="herb-tag herb-zuo">枳实（佐）</span><span class="herb-tag herb-zuo">陈皮（佐）</span><span class="herb-tag herb-zuo">茯苓（佐）</span>
+          <span class="herb-tag herb-shi">甘草（使）</span><span class="herb-tag herb-shi">生姜（使）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 心脾两虚 -->
+    <div class="kb-section" id="section-heart-spleen">
+      <div class="kb-section-header">
+        <div class="kb-section-icon" style="background:rgba(34,197,94,.12)">💛</div>
+        <div><div class="kb-section-title">心脾两虚</div><div class="kb-section-sub">劳倦思虑，损伤心脾，气血生化不足</div></div>
+      </div>
+      <div class="syn-detail-card">
+        <div class="syn-card-header">
+          <div class="syn-card-icon">💛</div>
+          <div><div class="syn-card-name">证候特征</div><div class="syn-card-tagline">病机：心脾两虚，气血不足，心神失养</div></div>
+        </div>
+        <div class="syn-card-body">
+          <div class="syn-group"><div class="syn-group-label">主症</div><div class="syn-tags"><span class="syn-tag tag-core">多梦易醒</span><span class="syn-tag tag-core">心悸健忘</span><span class="syn-tag tag-main">神疲食少</span><span class="syn-tag tag-main">四肢倦怠</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">次症</div><div class="syn-tags"><span class="syn-tag tag-sub">面色萎黄</span><span class="syn-tag tag-sub">腹胀便溏</span><span class="syn-tag tag-sub">头晕目眩</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">舌象</div><div class="syn-group-content">舌淡苔薄白</div></div>
+          <div class="syn-group"><div class="syn-group-label">脉象</div><div class="syn-group-content">脉细弱</div></div>
+          <div class="syn-group" style="grid-column:1/-1"><div class="syn-group-label">治则</div><div class="syn-group-content">补益心脾，养血安神</div></div>
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-header"><span class="formula-name">归脾汤</span><span class="formula-type">补益剂</span></div>
+        <div class="formula-function">功效：益气补血，健脾养心。主治心脾气血两虚证，症见心悸怔忡、失眠多梦、头昏神疲、食少体倦。</div>
+        <div class="herbs-row">
+          <span class="herb-tag herb-jun">黄芪（君）</span><span class="herb-tag herb-jun">龙眼肉（君）</span>
+          <span class="herb-tag herb-chen">人参（臣）</span><span class="herb-tag herb-chen">白术（臣）</span><span class="herb-tag herb-chen">当归（臣）</span>
+          <span class="herb-tag herb-zuo">茯神（佐）</span><span class="herb-tag herb-zuo">酸枣仁（佐）</span><span class="herb-tag herb-zuo">远志（佐）</span><span class="herb-tag herb-zuo">木香（佐）</span>
+          <span class="herb-tag herb-shi">炙甘草（使）</span><span class="herb-tag herb-shi">生姜（使）</span><span class="herb-tag herb-shi">大枣（使）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 心肾不交 -->
+    <div class="kb-section" id="section-heart-kidney">
+      <div class="kb-section-header">
+        <div class="kb-section-icon" style="background:rgba(96,165,250,.12)">🌊</div>
+        <div><div class="kb-section-title">心肾不交</div><div class="kb-section-sub">久病、房劳或思虑，肾阴亏损，心火偏亢</div></div>
+      </div>
+      <div class="syn-detail-card">
+        <div class="syn-card-header">
+          <div class="syn-card-icon">🌊</div>
+          <div><div class="syn-card-name">证候特征</div><div class="syn-card-tagline">病机：肾阴不足，心火亢盛，水火不济</div></div>
+        </div>
+        <div class="syn-card-body">
+          <div class="syn-group"><div class="syn-group-label">主症</div><div class="syn-tags"><span class="syn-tag tag-core">心烦不寐</span><span class="syn-tag tag-core">腰膝酸软</span><span class="syn-tag tag-main">潮热盗汗</span><span class="syn-tag tag-main">五心烦热</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">次症</div><div class="syn-tags"><span class="syn-tag tag-sub">头晕耳鸣</span><span class="syn-tag tag-sub">遗精带下</span><span class="syn-tag tag-sub">口燥咽干</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">舌象</div><div class="syn-group-content">舌红少苔</div></div>
+          <div class="syn-group"><div class="syn-group-label">脉象</div><div class="syn-group-content">脉细数</div></div>
+          <div class="syn-group" style="grid-column:1/-1"><div class="syn-group-label">治则</div><div class="syn-group-content">滋阴降火，交通心肾</div></div>
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-header"><span class="formula-name">天王补心丹</span><span class="formula-type">补益安神剂</span></div>
+        <div class="formula-function">功效：滋阴清热，养血安神。主治阴虚血少，心肾两亏之心神不宁，症见失眠多梦、心悸怔忡、五心烦热。</div>
+        <div class="herbs-row">
+          <span class="herb-tag herb-jun">生地（君）</span>
+          <span class="herb-tag herb-chen">天冬（臣）</span><span class="herb-tag herb-chen">麦冬（臣）</span><span class="herb-tag herb-chen">玄参（臣）</span>
+          <span class="herb-tag herb-zuo">酸枣仁（佐）</span><span class="herb-tag herb-zuo">柏子仁（佐）</span><span class="herb-tag herb-zuo">当归（佐）</span><span class="herb-tag herb-zuo">丹参（佐）</span>
+          <span class="herb-tag herb-shi">茯苓（使）</span><span class="herb-tag herb-shi">远志（使）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 心胆气虚 -->
+    <div class="kb-section" id="section-gallbladder">
+      <div class="kb-section-header">
+        <div class="kb-section-icon" style="background:rgba(251,113,133,.12)">🫀</div>
+        <div><div class="kb-section-title">心胆气虚</div><div class="kb-section-sub">素体胆怯，或受到惊吓，心胆气虚</div></div>
+      </div>
+      <div class="syn-detail-card">
+        <div class="syn-card-header">
+          <div class="syn-card-icon">🫀</div>
+          <div><div class="syn-card-name">证候特征</div><div class="syn-card-tagline">病机：心虚胆怯，神明失守，魂魄不安</div></div>
+        </div>
+        <div class="syn-card-body">
+          <div class="syn-group"><div class="syn-group-label">主症</div><div class="syn-tags"><span class="syn-tag tag-core">不寐多梦</span><span class="syn-tag tag-core">胆小恐惧</span><span class="syn-tag tag-main">心悸不安</span><span class="syn-tag tag-main">易于惊醒</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">次症</div><div class="syn-tags"><span class="syn-tag tag-sub">触事善惊</span><span class="syn-tag tag-sub">气短自汗</span><span class="syn-tag tag-sub">倦怠乏力</span></div></div>
+          <div class="syn-group"><div class="syn-group-label">舌象</div><div class="syn-group-content">舌淡苔薄</div></div>
+          <div class="syn-group"><div class="syn-group-label">脉象</div><div class="syn-group-content">脉弦细</div></div>
+          <div class="syn-group" style="grid-column:1/-1"><div class="syn-group-label">治则</div><div class="syn-group-content">益气镇惊，安神定志</div></div>
+        </div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-header"><span class="formula-name">安神定志丸</span><span class="formula-type">安神剂</span></div>
+        <div class="formula-function">功效：镇心安神，益气定志。主治心胆气虚，惊恐不安，心神不宁，失眠多梦，触事易惊。</div>
+        <div class="herbs-row">
+          <span class="herb-tag herb-jun">龙骨（君）</span><span class="herb-tag herb-jun">朱砂（君）</span>
+          <span class="herb-tag herb-chen">人参（臣）</span><span class="herb-tag herb-chen">茯神（臣）</span>
+          <span class="herb-tag herb-zuo">远志（佐）</span><span class="herb-tag herb-zuo">石菖蒲（佐）</span>
+          <span class="herb-tag herb-shi">甘草（使）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 穴位图谱 -->
+    <div class="kb-section" id="section-acupoints">
+      <div class="kb-section-header">
+        <div class="kb-section-icon" style="background:rgba(201,162,39,.12)">🫴</div>
+        <div><div class="kb-section-title">常用安神穴位</div><div class="kb-section-sub">选穴原则：辨证取穴，局部与远端相配合</div></div>
+      </div>
+      <div style="background:#111827;border:1px solid rgba(107,79,160,.2);border-radius:14px;overflow:hidden">
+        <table class="acu-table">
+          <thead><tr><th>穴位名称</th><th>定位</th><th>功效</th><th>适用证型</th><th>按摩方法</th></tr></thead>
+          <tbody>
+            <tr><td><span class="acu-name">神门穴</span><br><small style="color:#64748B">手少阴心经</small></td><td>腕横纹尺侧端，尺侧腕屈肌腱的桡侧凹陷</td><td>宁心安神、通经活络</td><td>所有证型均适用</td><td>双拇指交替按揉，各100次，力度适中</td></tr>
+            <tr><td><span class="acu-name">百会穴</span><br><small style="color:#64748B">督脉</small></td><td>头顶正中，两耳尖连线中点</td><td>醒脑开窍、升阳固脱</td><td>心脾两虚、心胆气虚</td><td>中指点按，每次3-5分钟，睡前进行</td></tr>
+            <tr><td><span class="acu-name">三阴交</span><br><small style="color:#64748B">足太阴脾经</small></td><td>内踝尖上3寸，胫骨内侧缘后方</td><td>健脾利湿、兼调肝肾</td><td>心脾两虚、心肾不交</td><td>拇指按揉，每侧3分钟，力度稍重</td></tr>
+            <tr><td><span class="acu-name">涌泉穴</span><br><small style="color:#64748B">足少阴肾经</small></td><td>足底前1/3处凹陷中，卷足时足前部凹陷处</td><td>引火归元、滋肾降火</td><td>心肾不交、肝火扰心</td><td>热水泡脚后按揉，每侧5分钟，有热感为佳</td></tr>
+            <tr><td><span class="acu-name">内关穴</span><br><small style="color:#64748B">手厥阴心包经</small></td><td>腕横纹上2寸，掌长肌腱与桡侧腕屈肌腱之间</td><td>宁心安神、和胃止呕</td><td>心脾两虚、痰热扰心</td><td>拇指按压，每穴1-2分钟，有酸胀感</td></tr>
+            <tr><td><span class="acu-name">太冲穴</span><br><small style="color:#64748B">足厥阴肝经</small></td><td>足背第1、2跖骨间，跖骨底结合部前方凹陷</td><td>平肝息风、疏肝解郁</td><td>肝火扰心</td><td>拇指从上往下推按，力度稍重，3分钟</td></tr>
+            <tr><td><span class="acu-name">安眠穴</span><br><small style="color:#64748B">经外奇穴</small></td><td>翳风与风池穴连线中点处</td><td>宁心安神、镇静催眠</td><td>所有证型均适用</td><td>双手四指微弯置于枕后，拇指点按，各2分钟</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 食疗养生 -->
+    <div class="kb-section" id="section-diet">
+      <div class="kb-section-header">
+        <div class="kb-section-icon" style="background:rgba(34,197,94,.12)">🍃</div>
+        <div><div class="kb-section-title">食疗养生要诀</div><div class="kb-section-sub">药食同源，辨证进食</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="formula-card" style="border-color:rgba(34,197,94,.2)">
+          <div class="formula-header"><span class="formula-name" style="color:#22c55e">心脾两虚食疗</span><span class="formula-type" style="color:#22c55e;background:rgba(34,197,94,.1)">益气养血</span></div>
+          <div class="formula-function">宜食：桂圆、红枣、莲子、山药、小米粥、猪心、猪脾<br>推荐：<b>桂圆莲子红枣粥</b>——睡前1-2小时温热服用<br>禁忌：辛辣、油腻、生冷食物，忌浓茶咖啡</div>
+        </div>
+        <div class="formula-card" style="border-color:rgba(249,115,22,.2)">
+          <div class="formula-header"><span class="formula-name" style="color:#f97316">肝火扰心食疗</span><span class="formula-type" style="color:#f97316;background:rgba(249,115,22,.1)">清肝降火</span></div>
+          <div class="formula-function">宜食：绿豆、苦瓜、菊花、决明子、冬瓜、绿叶蔬菜<br>推荐：<b>菊花决明子茶</b>——每日代茶饮，清肝明目<br>禁忌：羊肉、辣椒、酒精、荔枝等温热动火之品</div>
+        </div>
+        <div class="formula-card" style="border-color:rgba(96,165,250,.2)">
+          <div class="formula-header"><span class="formula-name" style="color:#60a5fa">心肾不交食疗</span><span class="formula-type" style="color:#60a5fa;background:rgba(96,165,250,.1)">滋阴降火</span></div>
+          <div class="formula-function">宜食：黑芝麻、枸杞、百合、银耳、鸭肉、甲鱼、黑豆<br>推荐：<b>百合枸杞银耳羹</b>——滋阴润燥，安神助眠<br>禁忌：辛热香燥食物，忌烟酒，少食甜腻</div>
+        </div>
+        <div class="formula-card" style="border-color:rgba(167,139,250,.2)">
+          <div class="formula-header"><span class="formula-name" style="color:#a78bfa">痰热扰心食疗</span><span class="formula-type" style="color:#a78bfa;background:rgba(167,139,250,.1)">清热化痰</span></div>
+          <div class="formula-function">宜食：薏苡仁、赤小豆、冬瓜、萝卜、陈皮、竹笋<br>推荐：<b>薏仁赤豆粥</b>——利湿清热，健脾化痰<br>禁忌：肥甘厚腻、甜食、酒类，少吃夜宵</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 参考文献 -->
+    <div class="kb-section" id="section-refs">
+      <div class="kb-section-header">
+        <div class="kb-section-icon" style="background:rgba(107,79,160,.12)">📚</div>
+        <div><div class="kb-section-title">权威参考文献</div><div class="kb-section-sub">本系统知识库建设依据</div></div>
+      </div>
+      <div class="ref-card"><h4>1. 《中医内科学》十四五规划教材</h4><p>主编：吴勉华，石岩。人民卫生出版社，2021年第五版。本教材为本系统证型辨别标准和方剂选择的主要依据，涵盖不寐病的辨证分型、治法方药等核心内容。</p></div>
+      <div class="ref-card"><h4>2. 《中医睡眠疾病诊疗指南》（2022年版）</h4><p>中华中医药学会睡眠医学分会组织制定。内容涵盖原发性失眠的中医诊断标准、证候分类、辨证论治规范，为本系统症状权重设置提供依据。</p></div>
+      <div class="ref-card"><h4>3. 《中华人民共和国国家标准·中医临床诊疗术语》GB/T 16751-2021</h4><p>规范了中医证候术语表达方式，本系统症状描述和证型命名均遵从该标准。</p></div>
+      <div class="ref-card"><h4>4. 中华中医药学会《中医体质分类与判定》标准</h4><p>ZYYXH/T157-2009。为用户个性化调养方案的体质调护部分提供参考依据。</p></div>
+    </div>
+
+  </div><!-- end kbContent -->
+</div><!-- end kb-layout -->
+</div><!-- end container -->
+
+<footer class="pub-footer">
+  <p>📚 知识库内容依据权威中医教材整理，仅供学习参考，不代替专业医疗诊断。</p>
+  <p style="margin-top:8px;color:#374151">© 2024 中医原发性失眠智能辅助调养系统</p>
+</footer>
+
+<script src="js/common.js"></script>
+<script>
+function switchNav(el){
+  document.querySelectorAll('.kb-nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+}
+function filterContent(val){
+  val=val.trim().toLowerCase();
+  if(!val){document.querySelectorAll('.kb-section').forEach(s=>s.style.display='block');return;}
+  document.querySelectorAll('.kb-section').forEach(s=>{
+    const text=s.innerText.toLowerCase();
+    s.style.display=text.includes(val)?'block':'none';
+  });
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  const u=getCurrentUser();
+  if(u){
+    document.getElementById('navAuth').innerHTML=`
+      <span style="color:#C4B5FD;font-size:13px">👋 ${u.name}</span>
+      <a href="${u.role==='doctor'?'doctor/dashboard.html':'user/dashboard.html'}" class="nav-btn-fill">进入系统</a>`;
+  }
+});
+</script>
+</body>
+</html>
