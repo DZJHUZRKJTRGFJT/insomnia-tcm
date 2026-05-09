@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>辨证记录 · 安眠智道</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #F0EDF8; }
+.page-header { margin-bottom: 28px; }
+.page-header h1 { font-size: 26px; font-weight: 800; color: var(--text-primary); }
+.page-header p { font-size: 14px; color: var(--text-light); margin-top: 6px; }
+
+/* 筛选栏 */
+.filter-bar {
+  background: #fff; border-radius: 14px; padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 24px; border: 1px solid rgba(107,79,160,0.1);
+}
+
+.filter-input {
+  flex: 1; min-width: 200px; padding: 10px 16px;
+  background: rgba(107,79,160,0.04); border: 1.5px solid rgba(107,79,160,0.12);
+  border-radius: 8px; font-size: 14px; color: var(--text-primary);
+  outline: none; font-family: inherit;
+}
+
+.filter-input:focus { border-color: var(--primary); background: #fff; }
+
+.filter-select {
+  padding: 10px 16px; background: rgba(107,79,160,0.04);
+  border: 1.5px solid rgba(107,79,160,0.12); border-radius: 8px;
+  font-size: 14px; color: var(--text-secondary);
+  cursor: pointer; font-family: inherit; outline: none;
+}
+
+/* 记录卡片 */
+.record-card {
+  background: #fff; border-radius: 16px;
+  border: 1px solid rgba(107,79,160,0.1);
+  margin-bottom: 16px; overflow: hidden;
+  transition: var(--transition);
+}
+
+.record-card:hover { box-shadow: 0 8px 24px rgba(107,79,160,0.1); transform: translateY(-2px); }
+
+.record-card-header {
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(107,79,160,0.06);
+}
+
+.record-num {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(107,79,160,0.08); display: flex; align-items: center;
+  justify-content: center; font-size: 14px; font-weight: 700;
+  color: var(--primary); flex-shrink: 0;
+}
+
+.record-main { flex: 1; }
+
+.record-syndrome-tag {
+  font-size: 16px; font-weight: 700; color: var(--text-primary);
+  margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+
+.record-meta { font-size: 13px; color: var(--text-light); }
+
+.record-score-badge {
+  font-size: 22px; font-weight: 900; color: var(--primary);
+  min-width: 50px; text-align: right;
+}
+
+.record-arrow {
+  font-size: 18px; color: var(--text-light);
+  transition: transform 0.3s; margin-left: 8px;
+}
+
+.record-card.open .record-arrow { transform: rotate(90deg); }
+
+.record-detail {
+  display: none; padding: 20px 24px;
+  background: rgba(107,79,160,0.02);
+}
+
+.record-card.open .record-detail { display: block; }
+
+.detail-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detail-item { padding: 12px 14px; background: rgba(107,79,160,0.04); border-radius: 8px; }
+.detail-item label { display: block; font-size: 11px; color: var(--text-light); margin-bottom: 4px; text-transform: uppercase; }
+.detail-item span { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+.detail-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.detail-btn {
+  padding: 8px 18px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; cursor: pointer; transition: var(--transition);
+  border: 1.5px solid; font-family: inherit;
+}
+
+.db-primary { background: var(--purple-gradient); border-color: transparent; color: #fff; }
+.db-outline { background: transparent; border-color: rgba(107,79,160,0.25); color: var(--primary); }
+
+/* 空状态 */
+.empty-state {
+  text-align: center; padding: 80px 40px;
+  background: #fff; border-radius: 16px;
+  border: 1px solid rgba(107,79,160,0.1);
+}
+
+.empty-icon { font-size: 64px; margin-bottom: 20px; opacity: 0.4; }
+.empty-state h3 { font-size: 18px; font-weight: 700; color: var(--text-secondary); margin-bottom: 10px; }
+.empty-state p { font-size: 14px; color: var(--text-light); margin-bottom: 24px; }
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="dashboard.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+        <div class="brand-icon">☯</div>
+        <div class="brand-text"><span class="brand-name">安眠智道</span><span class="brand-sub">辨证记录</span></div>
+      </a>
+    </div>
+    <div class="nav-actions">
+      <a href="dashboard.html" class="btn-login">← 返回主页</a>
+      <button class="btn-register" onclick="logoutUser()">退出</button>
+    </div>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">用</div>
+      <div class="sidebar-username" id="sidebarName">加载中...</div>
+      <span class="sidebar-role">普通用户</span>
+    </div>
+    <p class="sidebar-section-title">功能菜单</p>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏠 我的主页</a>
+      <a href="assessment.html">🔍 开始辨证</a>
+      <a href="records.html" class="active">📋 辨证记录</a>
+      <a href="plan.html">🌿 调养方案</a>
+      <a href="trend.html">📊 症状趋势</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>📋 辨证记录</h1>
+      <p>您的所有历次辨证结果记录，点击展开查看详细信息</p>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" class="filter-input" id="searchInput" placeholder="🔍 搜索证型、症状...">
+      <select class="filter-select" id="syndromeFilter">
+        <option value="">全部证型</option>
+        <option value="肝火扰心">肝火扰心</option>
+        <option value="痰热扰心">痰热扰心</option>
+        <option value="心脾两虚">心脾两虚</option>
+        <option value="心肾不交">心肾不交</option>
+        <option value="心胆气虚">心胆气虚</option>
+      </select>
+      <a href="assessment.html" class="btn-primary" style="white-space:nowrap">+ 新增辨证</a>
+    </div>
+
+    <div id="recordsList"></div>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+const syndromeIcons = {
+  '肝火扰心': '🔥', '痰热扰心': '🌫️', '心脾两虚': '💛',
+  '心肾不交': '🌊', '心胆气虚': '🌙'
+};
+
+// 模拟历史记录数据
+const mockRecords = [
+  {
+    id: 1001, time: '2026-05-08 14:32',
+    result: { type: 'single', syndrome1: '心脾两虚', scores: {'心脾两虚':72,'心胆气虚':45,'心肾不交':38,'肝火扰心':20,'痰热扰心':15} }
+  },
+  {
+    id: 1002, time: '2026-04-25 09:15',
+    result: { type: 'mixed', syndrome1: '心肾不交', syndrome2: '心脾两虚', scores: {'心肾不交':65,'心脾两虚':58,'心胆气虚':35,'肝火扰心':25,'痰热扰心':18} }
+  },
+  {
+    id: 1003, time: '2026-04-10 20:05',
+    result: { type: 'single', syndrome1: '心脾两虚', scores: {'心脾两虚':68,'心胆气虚':40,'心肾不交':30,'肝火扰心':18,'痰热扰心':12} }
+  },
+];
+
+function renderRecords(records) {
+  const list = document.getElementById('recordsList');
+  if (!records || records.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>暂无辨证记录</h3>
+        <p>您还没有进行过辨证，点击下方按钮开始您的第一次智能辨证</p>
+        <a href="assessment.html" class="btn-primary" style="text-decoration:none">开始辨证 →</a>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = records.map((r, i) => {
+    const res = r.result;
+    const mainSyndrome = res.syndrome1 || '未知';
+    const mainScore = res.scores?.[mainSyndrome] || 0;
+    const icon = syndromeIcons[mainSyndrome] || '🌙';
+    const typeTag = res.type === 'mixed' ? `兼 ${res.syndrome2}` : '单一证型';
+
+    const sortedScores = Object.entries(res.scores || {}).sort((a,b) => b[1]-a[1]);
+    const scoresHTML = sortedScores.map(([n, s]) => `
+      <div class="detail-item">
+        <label>${syndromeIcons[n] || '🌙'} ${n}</label>
+        <span>${s} <small style="color:var(--text-light);font-size:11px">/ 100</small></span>
+      </div>`).join('');
+
+    return `
+      <div class="record-card" id="card${r.id}" onclick="toggleCard(${r.id})">
+        <div class="record-card-header">
+          <div class="record-num">${records.length - i}</div>
+          <div class="record-main">
+            <div class="record-syndrome-tag">
+              ${icon} ${mainSyndrome}证
+              <span class="badge badge-${res.type === 'mixed' ? 'teal' : 'purple'}">${typeTag}</span>
+            </div>
+            <div class="record-meta">📅 ${r.time} · 辨证匹配度 ${mainScore}%</div>
+          </div>
+          <div class="record-score-badge">${mainScore}</div>
+          <div class="record-arrow">›</div>
+        </div>
+        <div class="record-detail">
+          <p style="font-size:13px;font-weight:600;color:var(--text-light);margin-bottom:12px">各证型评分</p>
+          <div class="detail-grid">${scoresHTML}</div>
+          <div class="detail-actions">
+            <button class="detail-btn db-primary" onclick="viewResult(${r.id}, event)">查看详细结果</button>
+            <button class="detail-btn db-outline" onclick="viewPlan(${r.id}, event)">查看调养方案</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleCard(id) {
+  const card = document.getElementById(`card${id}`);
+  card.classList.toggle('open');
+}
+
+function viewResult(id, e) {
+  e.stopPropagation();
+  const record = mockRecords.find(r => r.id === id);
+  if (record) {
+    localStorage.setItem('latestRecord', JSON.stringify(record));
+    window.location.href = 'result.html';
+  }
+}
+
+function viewPlan(id, e) {
+  e.stopPropagation();
+  const record = mockRecords.find(r => r.id === id);
+  if (record) {
+    localStorage.setItem('latestRecord', JSON.stringify(record));
+    window.location.href = 'plan.html';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!checkAuth()) return;
+  const user = getCurrentUser();
+  if (user) {
+    document.getElementById('sidebarAvatar').textContent = user.name.charAt(0);
+    document.getElementById('sidebarName').textContent = user.name;
+  }
+
+  // 加载历史记录（合并模拟数据+真实数据）
+  const key = 'userRecords_' + (user?.id || 'guest');
+  const savedRecords = JSON.parse(localStorage.getItem(key) || '[]');
+  const allRecords = [...savedRecords, ...mockRecords];
+
+  renderRecords(allRecords);
+
+  // 筛选
+  function filterRecords() {
+    const kw = document.getElementById('searchInput').value.toLowerCase();
+    const sf = document.getElementById('syndromeFilter').value;
+    const filtered = allRecords.filter(r => {
+      const s1 = r.result?.syndrome1 || '';
+      const s2 = r.result?.syndrome2 || '';
+      const matchKw = !kw || s1.includes(kw) || s2.includes(kw) || r.time.includes(kw);
+      const matchSf = !sf || s1 === sf || s2 === sf;
+      return matchKw && matchSf;
+    });
+    renderRecords(filtered);
+  }
+
+  document.getElementById('searchInput').addEventListener('input', filterRecords);
+  document.getElementById('syndromeFilter').addEventListener('change', filterRecords);
+});
+</script>
+</body>
+</html>
