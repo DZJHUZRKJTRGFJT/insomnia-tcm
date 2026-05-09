@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>症状趋势 · 安眠智道</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #F0EDF8; }
+.page-header { margin-bottom: 28px; }
+.page-header h1 { font-size: 26px; font-weight: 800; color: var(--text-primary); }
+.page-header p { font-size: 14px; color: var(--text-light); margin-top: 6px; }
+
+.trend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+
+.chart-card {
+  background: #fff; border-radius: 16px; padding: 24px;
+  border: 1px solid rgba(107,79,160,0.1); overflow: hidden;
+}
+
+.chart-card.wide { grid-column: 1 / -1; }
+
+.chart-card-title {
+  font-size: 16px; font-weight: 700; color: var(--text-primary);
+  margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+}
+
+.chart-card-sub { font-size: 13px; color: var(--text-light); margin-bottom: 20px; }
+
+canvas { max-width: 100%; }
+
+/* 睡眠评分变化 */
+.sleep-timeline {
+  display: flex; flex-direction: column; gap: 0;
+}
+
+.sleep-entry {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 0; border-bottom: 1px solid rgba(107,79,160,0.05);
+  position: relative;
+}
+
+.sleep-entry:last-child { border-bottom: none; }
+
+.sleep-date { font-size: 12px; color: var(--text-light); min-width: 90px; }
+
+.sleep-bar-wrap { flex: 1; }
+
+.sleep-bar {
+  height: 10px; border-radius: 5px;
+  background: rgba(107,79,160,0.08); overflow: hidden;
+}
+
+.sleep-bar-fill {
+  height: 100%; border-radius: 5px;
+  background: var(--purple-gradient);
+  transition: width 1.2s ease;
+}
+
+.sleep-score { font-size: 16px; font-weight: 700; color: var(--primary); min-width: 40px; text-align: right; }
+.sleep-change { font-size: 12px; min-width: 44px; text-align: right; }
+.change-up2 { color: var(--accent); }
+.change-down { color: var(--danger); }
+
+/* AI分析建议 */
+.ai-suggestion {
+  background: linear-gradient(135deg, rgba(107,79,160,0.05), rgba(201,162,39,0.05));
+  border: 1px solid rgba(107,79,160,0.12);
+  border-radius: 14px; padding: 24px; margin-top: 24px;
+}
+
+.ai-suggestion h4 {
+  font-size: 15px; font-weight: 700; color: var(--primary);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+
+.ai-suggestion p { font-size: 14px; color: var(--text-secondary); line-height: 1.8; }
+
+/* 指标卡片 */
+.metrics-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+
+.metric-card {
+  background: #fff; border-radius: 14px; padding: 20px;
+  border: 1px solid rgba(107,79,160,0.1); text-align: center;
+}
+
+.metric-icon { font-size: 28px; margin-bottom: 10px; }
+.metric-num { font-size: 28px; font-weight: 900; color: var(--text-primary); }
+.metric-num.good { color: var(--accent); }
+.metric-num.bad { color: var(--danger); }
+.metric-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+.metric-trend { font-size: 12px; margin-top: 6px; font-weight: 600; }
+
+@media (max-width: 1024px) { .trend-grid { grid-template-columns: 1fr; } .metrics-row { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 640px) { .metrics-row { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="dashboard.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+        <div class="brand-icon">☯</div>
+        <div class="brand-text"><span class="brand-name">安眠智道</span><span class="brand-sub">症状趋势</span></div>
+      </a>
+    </div>
+    <div class="nav-actions">
+      <a href="dashboard.html" class="btn-login">← 返回主页</a>
+      <button class="btn-register" onclick="logoutUser()">退出</button>
+    </div>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">用</div>
+      <div class="sidebar-username" id="sidebarName">加载中...</div>
+      <span class="sidebar-role">普通用户</span>
+    </div>
+    <p class="sidebar-section-title">功能菜单</p>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏠 我的主页</a>
+      <a href="assessment.html">🔍 开始辨证</a>
+      <a href="records.html">📋 辨证记录</a>
+      <a href="plan.html">🌿 调养方案</a>
+      <a href="trend.html" class="active">📊 症状趋势</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>📊 症状变化趋势</h1>
+      <p>基于您的历次辨证记录，可视化展示症状改善情况</p>
+    </div>
+
+    <!-- 核心指标 -->
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-icon">😴</div>
+        <div class="metric-num good">5.8h</div>
+        <div class="metric-label">最近7日平均睡眠时长</div>
+        <div class="metric-trend" style="color:var(--accent)">↑ 较前改善 0.6h</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">⏰</div>
+        <div class="metric-num">42min</div>
+        <div class="metric-label">平均入睡时长</div>
+        <div class="metric-trend" style="color:var(--accent)">↓ 减少 18min</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">🌙</div>
+        <div class="metric-num bad">1.8次</div>
+        <div class="metric-label">平均夜间觉醒次数</div>
+        <div class="metric-trend" style="color:var(--accent)">↓ 减少 0.5次</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">📈</div>
+        <div class="metric-num good">72</div>
+        <div class="metric-label">最新辨证匹配度</div>
+        <div class="metric-trend" style="color:var(--accent)">↑ 较上次提升 7分</div>
+      </div>
+    </div>
+
+    <div class="trend-grid">
+      <!-- 辨证得分变化 -->
+      <div class="chart-card">
+        <div class="chart-card-title">📈 辨证得分变化趋势</div>
+        <div class="chart-card-sub">历次辨证核心证型得分对比</div>
+        <canvas id="scoreChart" height="220"></canvas>
+      </div>
+
+      <!-- 证型分布饼图 -->
+      <div class="chart-card">
+        <div class="chart-card-title">🥧 证型分布分析</div>
+        <div class="chart-card-sub">各证型得分比例（最新一次）</div>
+        <canvas id="pieChart" height="220"></canvas>
+      </div>
+
+      <!-- 核心症状改善 -->
+      <div class="chart-card wide">
+        <div class="chart-card-title">💤 核心睡眠症状评分变化</div>
+        <div class="chart-card-sub">0分=无症状 / 4分=最严重，追踪各症状改善情况</div>
+        <canvas id="radarChart" height="300"></canvas>
+      </div>
+    </div>
+
+    <!-- 辨证得分时间线 -->
+    <div class="chart-card" style="margin-bottom:24px">
+      <div class="chart-card-title">📅 历次辨证得分时间线</div>
+      <div class="chart-card-sub">纵向追踪调养效果</div>
+      <div class="sleep-timeline" id="timeline"></div>
+    </div>
+
+    <!-- AI趋势建议 -->
+    <div class="ai-suggestion">
+      <h4>🤖 AI趋势分析与建议</h4>
+      <p id="aiAdvice"></p>
+    </div>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (!checkAuth()) return;
+  const user = getCurrentUser();
+  if (user) {
+    document.getElementById('sidebarAvatar').textContent = user.name.charAt(0);
+    document.getElementById('sidebarName').textContent = user.name;
+  }
+
+  drawCharts();
+  drawTimeline();
+  generateAdvice();
+});
+
+const trendData = {
+  dates: ['04-10', '04-25', '05-08'],
+  心脾两虚: [68, 58, 72],
+  心肾不交: [30, 65, 38],
+  心胆气虚: [40, 35, 45],
+};
+
+function drawCharts() {
+  // 折线图
+  const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+  const W = scoreCtx.canvas.width, H = scoreCtx.canvas.height;
+  scoreCtx.canvas.width = scoreCtx.canvas.parentElement.clientWidth - 48;
+  drawLineChart(scoreCtx, trendData);
+
+  // 饼图
+  const pieCtx = document.getElementById('pieChart').getContext('2d');
+  pieCtx.canvas.width = pieCtx.canvas.parentElement.clientWidth - 48;
+  drawPieChart(pieCtx);
+
+  // 雷达图
+  const radarCtx = document.getElementById('radarChart').getContext('2d');
+  radarCtx.canvas.width = radarCtx.canvas.parentElement.clientWidth - 48;
+  drawRadar(radarCtx);
+}
+
+function drawLineChart(ctx, data) {
+  const W = ctx.canvas.width, H = ctx.canvas.height;
+  const pad = { top: 20, right: 20, bottom: 40, left: 40 };
+  const cW = W - pad.left - pad.right, cH = H - pad.top - pad.bottom;
+  const dates = data.dates;
+  const series = [
+    { key: '心脾两虚', color: '#27AE60', data: data.心脾两虚 },
+    { key: '心肾不交', color: '#2980B9', data: data.心肾不交 },
+    { key: '心胆气虚', color: '#9B59B6', data: data.心胆气虚 },
+  ];
+
+  ctx.clearRect(0, 0, W, H);
+
+  // 网格
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + cH - (i / 4 * cH);
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cW, y);
+    ctx.strokeStyle = 'rgba(107,79,160,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = 'rgba(74,74,106,0.6)'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right'; ctx.fillText((i * 25).toString(), pad.left - 6, y + 4);
+  }
+
+  // X轴标签
+  dates.forEach((d, i) => {
+    const x = pad.left + (i / (dates.length - 1)) * cW;
+    ctx.fillStyle = 'rgba(74,74,106,0.7)'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText(d, x, H - 6);
+  });
+
+  // 折线
+  series.forEach(s => {
+    ctx.beginPath();
+    s.data.forEach((v, i) => {
+      const x = pad.left + (i / (dates.length - 1)) * cW;
+      const y = pad.top + cH - (v / 100 * cH);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = s.color; ctx.lineWidth = 2.5;
+    ctx.setLineDash([]); ctx.stroke();
+
+    // 点
+    s.data.forEach((v, i) => {
+      const x = pad.left + (i / (dates.length - 1)) * cW;
+      const y = pad.top + cH - (v / 100 * cH);
+      ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = s.color; ctx.fill();
+      ctx.fillStyle = 'rgba(74,74,106,0.8)'; ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center'; ctx.fillText(v, x, y - 10);
+    });
+  });
+
+  // 图例
+  series.forEach((s, i) => {
+    const lx = pad.left + 10 + i * 90;
+    ctx.fillStyle = s.color;
+    ctx.fillRect(lx, H - 22, 14, 3);
+    ctx.fillStyle = 'rgba(74,74,106,0.8)'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'left'; ctx.fillText(s.key, lx + 18, H - 16);
+  });
+}
+
+function drawPieChart(ctx) {
+  const W = ctx.canvas.width, H = ctx.canvas.height;
+  const cx = W / 2 - 60, cy = H / 2, r = Math.min(cx, cy) - 20;
+  const data = [
+    { name: '心脾两虚', value: 72, color: '#27AE60' },
+    { name: '心胆气虚', value: 45, color: '#9B59B6' },
+    { name: '心肾不交', value: 38, color: '#2980B9' },
+    { name: '肝火扰心', value: 20, color: '#E74C3C' },
+    { name: '痰热扰心', value: 15, color: '#F39C12' },
+  ];
+  const total = data.reduce((s, d) => s + d.value, 0);
+  let startAngle = -Math.PI / 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  data.forEach(d => {
+    const slice = (d.value / total) * Math.PI * 2;
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, startAngle + slice);
+    ctx.closePath(); ctx.fillStyle = d.color; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+    startAngle += slice;
+  });
+
+  // 图例
+  data.forEach((d, i) => {
+    const ly = 30 + i * 28;
+    ctx.fillStyle = d.color;
+    ctx.fillRect(W - 110, ly, 12, 12);
+    ctx.fillStyle = 'rgba(26,26,46,0.8)'; ctx.font = '12px sans-serif';
+    ctx.textAlign = 'left'; ctx.fillText(d.name + ' ' + d.value, W - 94, ly + 10);
+  });
+}
+
+function drawRadar(ctx) {
+  const W = ctx.canvas.width, H = ctx.canvas.height;
+  const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 60;
+  const labels = ['入睡困难', '夜间觉醒', '睡眠时长', '早醒', '多梦', '情志影响'];
+  const prev = [4, 3, 3, 2, 4, 4];
+  const curr = [2, 2, 2, 2, 2, 2];
+  const n = labels.length;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // 网格
+  for (let lv = 1; lv <= 4; lv++) {
+    const r = R * lv / 4;
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const a = (Math.PI * 2 * i / n) - Math.PI / 2;
+      i === 0 ? ctx.moveTo(cx + r * Math.cos(a), cy + r * Math.sin(a))
+               : ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+    }
+    ctx.closePath(); ctx.strokeStyle = 'rgba(107,79,160,0.1)'; ctx.lineWidth = 1; ctx.stroke();
+  }
+
+  for (let i = 0; i < n; i++) {
+    const a = (Math.PI * 2 * i / n) - Math.PI / 2;
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + R * Math.cos(a), cy + R * Math.sin(a));
+    ctx.strokeStyle = 'rgba(107,79,160,0.1)'; ctx.lineWidth = 1; ctx.stroke();
+    const lx = cx + (R + 28) * Math.cos(a);
+    const ly = cy + (R + 28) * Math.sin(a);
+    ctx.fillStyle = 'rgba(74,74,106,0.8)'; ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(labels[i], lx, ly);
+  }
+
+  // 上次数据（较深色）
+  function drawShape(vals, color, fillAlpha) {
+    ctx.beginPath();
+    vals.forEach((v, i) => {
+      const a = (Math.PI * 2 * i / n) - Math.PI / 2;
+      const r = R * v / 4;
+      i === 0 ? ctx.moveTo(cx + r * Math.cos(a), cy + r * Math.sin(a))
+               : ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+    });
+    ctx.closePath();
+    ctx.fillStyle = color.replace('1)', fillAlpha + ')'); ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+  }
+
+  drawShape(prev, 'rgba(231,111,81,1)', '0.15');
+  drawShape(curr, 'rgba(42,157,143,1)', '0.2');
+
+  // 图例
+  ctx.fillStyle = 'rgba(231,111,81,0.7)'; ctx.fillRect(20, H - 40, 14, 3);
+  ctx.fillStyle = 'rgba(26,26,46,0.7)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('上次辨证', 38, H - 34);
+  ctx.fillStyle = 'rgba(42,157,143,0.7)'; ctx.fillRect(120, H - 40, 14, 3);
+  ctx.fillStyle = 'rgba(26,26,46,0.7)'; ctx.fillText('最近一次', 138, H - 34);
+}
+
+function drawTimeline() {
+  const entries = [
+    { date: '2026-04-10', score: 68, change: null, syndrome: '心脾两虚' },
+    { date: '2026-04-25', score: 65, change: -3, syndrome: '心肾不交（兼）' },
+    { date: '2026-05-08', score: 72, change: +7, syndrome: '心脾两虚' },
+  ];
+
+  document.getElementById('timeline').innerHTML = entries.map((e, i) => `
+    <div class="sleep-entry">
+      <span class="sleep-date">${e.date}</span>
+      <div class="sleep-bar-wrap">
+        <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px">${e.syndrome}</div>
+        <div class="sleep-bar">
+          <div class="sleep-bar-fill" style="width:${e.score}%"></div>
+        </div>
+      </div>
+      <span class="sleep-score">${e.score}</span>
+      <span class="sleep-change ${e.change > 0 ? 'change-up2' : e.change < 0 ? 'change-down' : ''}">
+        ${e.change ? (e.change > 0 ? '↑+' : '↓') + Math.abs(e.change) : '--'}
+      </span>
+    </div>`).join('');
+}
+
+function generateAdvice() {
+  document.getElementById('aiAdvice').innerHTML = `
+    根据您近1个月的3次辨证记录分析：<br><br>
+    ✅ <strong>积极信号</strong>：您的<strong>入睡困难症状较前改善</strong>（从超过60分钟缩短至约40分钟），夜间觉醒次数有所减少（从≥2次降至1-2次），说明目前的调养方案已产生初步效果。<br><br>
+    📌 <strong>需要关注</strong>：第二次辨证出现心肾不交兼证，提示有阴虚倾向，建议适当增加滋阴食物（黑芝麻、枸杞等），减少熬夜频率。<br><br>
+    🌿 <strong>调养建议</strong>：请继续坚持心脾两虚证的调养方案，重点落实<strong>穴位按摩（神门、内关、三阴交）</strong>和<strong>睡前规律作息</strong>，建议在下次辨证（约2周后）时注意记录饮食改变对症状的影响。`;
+}
+</script>
+</body>
+</html>
